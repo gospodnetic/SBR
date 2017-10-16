@@ -3,7 +3,7 @@
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
 <<<<<<< Updated upstream
-* @Last Modified time: 2017-10-16 17:13:49
+* @Last Modified time: 2017-10-16 17:32:27
 =======
 * @Last Modified time: 2017-10-16 16:39:11
 >>>>>>> Stashed changes
@@ -45,7 +45,7 @@ int main()
     std::uniform_real_distribution<double> uniform01(0.0, 1.0);
 
     // Generate N numbers
-    const int N = 1000;
+    const int N = 10000;
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr sphere_cloud(
         new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -59,7 +59,7 @@ int main()
     for(size_t i = 0; i < N; i++)
     {
         const double theta = 2 * M_PI * uniform01(generator);
-        const double phi = M_PI * uniform01(generator);
+        const double phi = acos(1 - 2 * uniform01(generator));
         sphere_cloud->points[i].x = sin(phi) * cos(theta);
         sphere_cloud->points[i].y = sin(phi) * sin(theta);
         sphere_cloud->points[i].z = cos(phi);
