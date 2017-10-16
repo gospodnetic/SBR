@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-16 16:16:14
+* @Last Modified time: 2017-10-16 16:42:13
 */
 #include <iostream>
 #include <pcl/io/pcd_io.h>
@@ -36,7 +36,9 @@ int main()
         std::cout << "    " << cloud->points[i].x
             << " "    << cloud->points[i].y
             << " "    << cloud->points[i].z
-            << " "    << cloud->points[i].rgb
+            << " "    << int(cloud->points[i].r)
+            << " "    << int(cloud->points[i].g)
+            << " "    << int(cloud->points[i].b)
             << std::endl;
 
     //
@@ -99,11 +101,17 @@ int main()
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB>
         rgb(cloud);
     viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb, "sample cloud");
-    // viewer->addPolygonMesh(triangles, "sample mesh");
+    viewer->addPolygonMesh(triangles, "sample mesh");
+
     viewer->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
         3,
         "sample cloud");
+    viewer->setPointCloudRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+        3,
+        "sample mesh");
+
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
 
