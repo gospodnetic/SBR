@@ -2,11 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-<<<<<<< Updated upstream
-* @Last Modified time: 2017-10-16 17:32:27
-=======
-* @Last Modified time: 2017-10-16 16:39:11
->>>>>>> Stashed changes
+* @Last Modified time: 2017-10-17 15:37:49
 */
 #include <iostream>
 #include <random>
@@ -45,7 +41,7 @@ int main()
     std::uniform_real_distribution<double> uniform01(0.0, 1.0);
 
     // Generate N numbers
-    const int N = 10000;
+    const int N = 5000;
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr sphere_cloud(
         new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -79,8 +75,8 @@ int main()
         new pcl::PointCloud<pcl::Normal>);
     pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(
         new pcl::search::KdTree<pcl::PointXYZRGB>);
-    tree->setInputCloud(cloud);
-    n.setInputCloud(cloud);
+    tree->setInputCloud(sphere_cloud);
+    n.setInputCloud(sphere_cloud);
     n.setSearchMethod(tree);
     n.setKSearch(20);
     n.compute(*normals);
@@ -88,7 +84,7 @@ int main()
     // Concatenate the point data with the normal fields.
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals(
         new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-    pcl::concatenateFields(*cloud, *normals, *cloud_with_normals);
+    pcl::concatenateFields(*sphere_cloud, *normals, *cloud_with_normals);
 
     // Update search tree.
     pcl::search::KdTree<pcl::PointXYZRGBNormal>::Ptr tree2(
@@ -100,10 +96,10 @@ int main()
     pcl::PolygonMesh triangles;
 
     // Set the maximum distance between connected points.
-    gp3.setSearchRadius(0.1);
+    gp3.setSearchRadius(0.2);
 
     // Set typical values for the parameters
-    gp3.setMu(2.5);
+    gp3.setMu(5.5);
     gp3.setMaximumNearestNeighbors(100);;
     gp3.setMaximumSurfaceAngle(M_PI / 18);
     gp3.setMaximumAngle(2 * M_PI / 3);
@@ -130,10 +126,10 @@ int main()
     viewer->addPointCloud<pcl::PointXYZRGB>(sphere_cloud, rgb, "sample cloud");
     viewer->addPolygonMesh(triangles, "sample mesh");
 
-    viewer->setPointCloudRenderingProperties(
-        pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
-        3,
-        "sample cloud");
+    // viewer->setPointCloudRenderingProperties(
+    //     pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+    //     3,
+    //     "sample cloud");
     viewer->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
         3,
