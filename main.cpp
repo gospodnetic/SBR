@@ -2,9 +2,17 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-16 16:42:13
+<<<<<<< Updated upstream
+* @Last Modified time: 2017-10-16 17:13:49
+=======
+* @Last Modified time: 2017-10-16 16:39:11
+>>>>>>> Stashed changes
 */
 #include <iostream>
+#include <random>
+#include <cmath>
+#include <chrono>
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/vtk_io.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -28,18 +36,37 @@ int main()
     }
     std::cout << "Loaded "
         << cloud->width * cloud->height
-        << " data points from the .pcd file with the following fields: "
+        << " data points from the .pcd file."
         << std::endl;
 
-    // Print the cloud.
-    for(size_t i = 0; i < cloud->points.size(); i++)
-        std::cout << "    " << cloud->points[i].x
-            << " "    << cloud->points[i].y
-            << " "    << cloud->points[i].z
-            << " "    << int(cloud->points[i].r)
-            << " "    << int(cloud->points[i].g)
-            << " "    << int(cloud->points[i].b)
-            << std::endl;
+    // Generate a sphere point cloud.
+    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 generator(seed);
+    std::uniform_real_distribution<double> uniform01(0.0, 1.0);
+
+    // Generate N numbers
+    const int N = 1000;
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr sphere_cloud(
+        new pcl::PointCloud<pcl::PointXYZRGB>);
+
+    // Fill in the cloud data
+    // cloud.width    = 5;
+    // cloud.height   = 1;
+    sphere_cloud->is_dense = false;
+    sphere_cloud->points.resize(N);
+
+    for(size_t i = 0; i < N; i++)
+    {
+        const double theta = 2 * M_PI * uniform01(generator);
+        const double phi = M_PI * uniform01(generator);
+        sphere_cloud->points[i].x = sin(phi) * cos(theta);
+        sphere_cloud->points[i].y = sin(phi) * sin(theta);
+        sphere_cloud->points[i].z = cos(phi);
+        sphere_cloud->points[i].r = int(255 * uniform01(generator));
+        sphere_cloud->points[i].g = int(255 * uniform01(generator));
+        sphere_cloud->points[i].b = int(255 * uniform01(generator));
+    }
 
     //
     // Reconstruct the surface.
@@ -99,8 +126,8 @@ int main()
         new pcl::visualization::PCLVisualizer("3D viewer"));
     viewer->setBackgroundColor(0, 0, 0);
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB>
-        rgb(cloud);
-    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb, "sample cloud");
+        rgb(sphere_cloud);
+    viewer->addPointCloud<pcl::PointXYZRGB>(sphere_cloud, rgb, "sample cloud");
     viewer->addPolygonMesh(triangles, "sample mesh");
 
     viewer->setPointCloudRenderingProperties(
