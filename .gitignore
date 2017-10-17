@@ -1,0 +1,25 @@
+# Ignore all files except the ones with an extension
+*
+!/**/
+!*.*
+
+# Ignore CMake files.
+CMakeFiles/
+Makefile
+*.cmake
+
+# Ignore binary files.
+*.~
+
+# Ignore all text files but CMakeLists.txt
+*.txt
+!CMakeLists.txt
+
+# Ignore images and PCL screenshot data
+*.png
+*.jpeg
+*.cam
+
+# Ignore data
+data/
+tests/
