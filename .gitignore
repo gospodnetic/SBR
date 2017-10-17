@@ -17,6 +17,7 @@ Makefile
 
 # Ignore images and PCL screenshot data
 *.png
+!lodepng
 *.jpeg
 *.cam
 

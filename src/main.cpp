@@ -2,12 +2,14 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-17 15:37:49
+* @Last Modified time: 2017-10-18 10:01:08
 */
 #include <iostream>
 #include <random>
 #include <cmath>
 #include <chrono>
+
+#include <boost/thread/thread.hpp>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/vtk_io.h>
@@ -17,10 +19,12 @@
 #include <pcl/surface/gp3.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
-#include <boost/thread/thread.hpp>
+#include "cinema_image.h"
 
 int main()
 {
+    test_lodepng("/home/petra/Desktop/SampleBasedReconstruction/screenshot-1508257412.png");
+    
     // Read in the cloud.
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (
         new pcl::PointCloud<pcl::PointXYZRGB>);
