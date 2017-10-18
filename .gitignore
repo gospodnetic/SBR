@@ -24,3 +24,4 @@ Makefile
 # Ignore data
 data/
 tests/
+build/
