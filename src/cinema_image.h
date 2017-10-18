@@ -10,6 +10,10 @@
 
 #include <string>
 
-void test_lodepng(std::string filename);
+namespace cinema
+{
+    void test_lodepng(std::string filename);
 
+    void test_read_cinema_image();
+}
 #endif
