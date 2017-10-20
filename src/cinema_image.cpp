@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-20 11:30:10
+* @Last Modified time: 2017-10-20 15:03:09
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -14,9 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "../submodules/cnpy/cnpy.h"
 #include "../submodules/lodepng/lodepng.h"
-
 
 #include "yaml-cpp/yaml.h"
 
@@ -45,15 +43,12 @@ namespace cinema
 
         YAML::Node primes = YAML::LoadFile(filename + ".yaml");
         std::cout << "Primes size: " << primes.size() << "x" << primes[0].size() << std::endl;        
-        for (std::size_t i=0;i<primes.size();i++) {
-            for (std::size_t j=0;j<primes[i].size();j++)
-                std::cout << primes[i][j].as<float>() << " ";
-            std::cout << std::endl;
+
+        // Otput the data.
+        for (YAML::const_iterator row=primes.begin(); row!=primes.end(); row++) {
+            for (YAML::const_iterator col=row->begin(); col!=row->end(); col++)
+                std::cout << col->as<float>() << " ";
         }
-        // or:
-        // for (YAML::const_iterator it=primes.begin();it!=primes.end();++it) {
-        //   std::cout << it->as<float>() << "\n";
-        // }
     }
 } // !namespace cinema
 

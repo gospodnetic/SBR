@@ -2,7 +2,7 @@
 # @Author: Petra Gospodnetic
 # @Date:   2017-10-19 18:16:33
 # @Last Modified by:   Petra Gospodnetic
-# @Last Modified time: 2017-10-20 11:27:39
+# @Last Modified time: 2017-10-20 14:48:04
 
 import sys
 import getopt
@@ -12,13 +12,13 @@ import yaml
 def convert(fname):
     file = open(fname, mode='r')
     tz = np.load(file)
-    imageslice = tz[tz.files[0]]
+    numpy_array = tz[tz.files[0]]
     tz.close()
     file.close()
-    imageslice = np.flipud(imageslice)
+    numpy_array = np.flipud(numpy_array)
 
     with open(fname + '.yaml', 'w') as f:
-        yaml.dump(imageslice.tolist(), f)
+        yaml.dump(numpy_array.tolist(), f)
 
 def main(argv):
     try:
