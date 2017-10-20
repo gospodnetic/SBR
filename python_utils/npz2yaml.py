@@ -2,23 +2,41 @@
 # @Author: Petra Gospodnetic
 # @Date:   2017-10-19 18:16:33
 # @Last Modified by:   Petra Gospodnetic
-# @Last Modified time: 2017-10-19 18:17:37
+# @Last Modified time: 2017-10-20 11:27:39
 
+import sys
+import getopt
 import numpy as np
 import yaml
 
+def convert(fname):
+    file = open(fname, mode='r')
+    tz = np.load(file)
+    imageslice = tz[tz.files[0]]
+    tz.close()
+    file.close()
+    imageslice = np.flipud(imageslice)
 
-# Load .npz file
-fname = '../data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz'
+    with open(fname + '.yaml', 'w') as f:
+        yaml.dump(imageslice.tolist(), f)
 
-file = open(fname, mode='r')
-tz = np.load(file)
-imageslice = tz[tz.files[0]]
-tz.close()
-file.close()
-imageslice = np.flipud(imageslice)
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv,"i:",["input="])
+    except getopt.GetoptError:
+        print 'npz2yaml.py -i <inputfile>'
+        print 'Output file will have the same name with .yaml extension appended.'
+        sys.exit(2)
+    
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'test.py -i <inputfile>'
+            sys.exit()
+        elif opt in ("-i", "--input"):
+            fname = arg
 
-imageslice = (imageslice / imageslice.max())
+    convert(fname)
+    
 
-with open('image.yaml', 'w') as f:
-    yaml.dump(imageslice.tolist(), f)
+if __name__ == "__main__":
+   main(sys.argv[1:])
