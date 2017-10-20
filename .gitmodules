@@ -4,3 +4,6 @@
 [submodule "submodules/cnpy"]
 	path = submodules/cnpy
 	url = https://github.com/rogersce/cnpy
+[submodule "submodules/yaml-cpp"]
+	path = submodules/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

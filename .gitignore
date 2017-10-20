@@ -20,6 +20,12 @@ Makefile
 !lodepng
 *.jpeg
 *.cam
+*.tiff
+
+# Ignore random files
+*.npz
+*.yaml
+*.out
 
 # Ignore data
 data/

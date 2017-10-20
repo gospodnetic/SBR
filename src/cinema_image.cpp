@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-18 17:28:39
+* @Last Modified time: 2017-10-19 18:37:34
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -12,14 +12,18 @@
 #include <iostream>
 #include <vector>
 
+#include "../submodules/cnpy/cnpy.h"
 #include "../submodules/lodepng/lodepng.h"
 
-#include"../submodules/cnpy/cnpy.h"
-#include<complex>
-#include<cstdlib>
-#include<iostream>
-#include<map>
-#include<string>
+#include "tiffio.h"
+
+#include <complex>
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <string>
+
+#include "yaml.h"
 
 namespace cinema
 {
@@ -38,15 +42,7 @@ namespace cinema
 
     void test_read_cinema_image()
     {
-         //load the entire npz file
-        cnpy::npz_t my_npz = cnpy::npz_load("../data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz");
-
-        // npz_t is a map of strings
-        typedef cnpy::npz_t::const_iterator MapIterator;
-        for (MapIterator iter = my_npz.begin(); iter != my_npz.end(); iter++)
-        {
-            std::cout << "Key: " << iter->first << std::endl;
-        }
+        
     }
 } // !namespace cinema
 
