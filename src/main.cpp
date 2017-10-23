@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 14:45:48
+* @Last Modified time: 2017-10-23 16:30:01
 */
 
 #include <iostream>
@@ -20,9 +20,20 @@
 #include "cinema_image.h"
 #include "pcl_utils.h"
 
+#include "Eigen/Dense"
+
 int main()
 {
-    cinema::CinemaImage cinema_image("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz", 0, 0);
+    Eigen::Matrix3d m = Eigen::Matrix3d::Random();
+    m = (m + Eigen::Matrix3d::Constant(1.2)) * 50;
+    std::cout << "m =" << std::endl << m << std::endl;
+    Eigen::Vector3d v(1,2,3);
+
+    std::cout << "m * v =" << std::endl << m * v << std::endl;
+    
+    cinema::CinemaImage cinema_image("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",
+        -90,
+        0);
 
     
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud = 
