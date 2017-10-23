@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 14:47:02
+* @Last Modified time: 2017-10-23 16:52:16
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -16,6 +16,7 @@
 #include "../submodules/lodepng/lodepng.h"
 
 #include "yaml-cpp/yaml.h"
+#include "Eigen/Dense"
 
 namespace cinema
 {
@@ -95,15 +96,29 @@ namespace cinema
             new pcl::PointCloud<pcl::PointXYZRGB>);
         point_cloud->points.resize(m_depth_image.size() * m_depth_image[0].size());
 
+        // Rotation matrix.
+        Eigen::Matrix3d rot_phi;
+        rot_phi <<  cos(m_phi), sin(m_phi), 0,
+                   -sin(m_phi), cos(m_phi), 0,
+                    0         , 0         , 0;
+        std::cout << rot_phi << std::endl;
+
         // Generate the point cloud out of the depth values.
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
         {
             for(std::vector<float>::const_iterator col=row->begin(); col!=row->end(); col++)
             {
-                point_cloud->points[idx].z = col - row->begin();
-                point_cloud->points[idx].y = row - m_depth_image.begin();
-                point_cloud->points[idx].x = *col; // Switched with z just so that I don't have to rotate it every time when vieweing
+                // x y z vector.
+                Eigen::Vector3d pos(
+                    col - row->begin(),
+                    col - row->begin(),
+                    *col);
+                pos = rot_phi * pos;
+
+                point_cloud->points[idx].x = pos[0];
+                point_cloud->points[idx].y = pos[1];
+                point_cloud->points[idx].z = pos[2];
                 point_cloud->points[idx].r = *col;
                 point_cloud->points[idx].g = 50;
                 point_cloud->points[idx].b = 50;
