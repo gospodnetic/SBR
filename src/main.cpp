@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 12:42:13
+* @Last Modified time: 2017-10-23 13:29:58
 */
 
 #include <iostream>
@@ -41,12 +41,30 @@ int main()
     const double near_far_step = (camera_far - camera_near) / max_depth;
     
     // Map depth values to camera near/far space.
+    // for(std::vector<std::vector<float>>::iterator row=depth_image.begin(); row!=depth_image.end(); row++)
+    // {
+    //     for(std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
+    //         *col = *col / max_depth;
+    // }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr image_depth_cloud(
+            new pcl::PointCloud<pcl::PointXYZ>);
+    image_depth_cloud->points.resize(depth_image.size() * depth_image[0].size());
+
+    // Generate the point cloud out of the depth values.
+    size_t idx = 0;
     for(std::vector<std::vector<float>>::iterator row=depth_image.begin(); row!=depth_image.end(); row++)
     {
         for(std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
-            *col = *col * near_far_step + camera_near;
+        {
+            image_depth_cloud->points[idx].z = col - row->begin();
+            image_depth_cloud->points[idx].y = row - depth_image.begin();
+            image_depth_cloud->points[idx].x = *col;
+            idx++;
+            // std::cout << *col << " ";
+        }
+            
     }
-    // cinema::test_lodepng("/home/petra/Desktop/SampleBasedReconstruction/screenshot-1508257412.png");
 
     // // Read in the cloud.
     // pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = 
@@ -71,37 +89,37 @@ int main()
     //     2 * M_PI / 3,
     //     false);
 
-    // //  
-    // // Visualize the cloud.
-    // //
+    //  
+    // Visualize the cloud.
+    //
 
-    // // Initialize the viewer
-    // boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(
-    //     new pcl::visualization::PCLVisualizer("3D viewer"));
-    // viewer->setBackgroundColor(0, 0, 0);
+    // Initialize the viewer
+    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(
+        new pcl::visualization::PCLVisualizer("3D viewer"));
+    viewer->setBackgroundColor(0, 0, 0);
     // pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB>
     //     rgb(sphere_cloud);
     // viewer->addPolygonMesh(mesh, "sample mesh");
-
-    // // viewer->addPointCloud<pcl::PointXYZRGB>(sphere_cloud, rgb, "sample cloud");
-    // // viewer->setPointCloudRenderingProperties(
-    // //     pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
-    // //     3,
-    // //     "sample cloud");
-
     // viewer->setPointCloudRenderingProperties(
     //     pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
     //     3,
     //     "sample mesh");
 
-    // viewer->addCoordinateSystem(1.0);
-    // viewer->initCameraParameters();
+    viewer->addPointCloud<pcl::PointXYZ>(image_depth_cloud, "sample cloud");
+    viewer->setPointCloudRenderingProperties(
+        pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+        3,
+        "sample cloud");
 
-    // // Run the main loop.
-    // while(!viewer->wasStopped())
-    // {
-    //     viewer->spinOnce(1);
-    //     boost::this_thread::sleep (boost::posix_time::microseconds(100000));
-    // }
+
+    viewer->addCoordinateSystem(1.0);
+    viewer->initCameraParameters();
+
+    // Run the main loop.
+    while(!viewer->wasStopped())
+    {
+        viewer->spinOnce(1);
+        boost::this_thread::sleep (boost::posix_time::microseconds(100000));
+    }
     return 0;
 }   
