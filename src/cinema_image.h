@@ -11,10 +11,36 @@
 #include <string>
 #include <vector>
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 namespace cinema
 {
-    void test_lodepng(std::string filename);
+    class CinemaImage
+    {
+      public:
+        // Currently only .npz file.
+        // TODO: make more sensible interface for a CinemaImage. Does it make
+        // sense to read in and store every image?? Huge memory consumption!
+        // It is probably the best to fill in the point cloud as the images are
+        // read and just add a phi/theta ref to each point.
+        CinemaImage(
+            const std::string   filename,
+            const int           phi,
+            const int           theta);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud() const;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb() const;
 
-    std::vector<std::vector<float>> read_depth_image();
+      private:
+        std::vector<std::vector<float>> read_depth_image(
+            const std::string                   filename) const;
+
+        std::vector<std::vector<float>>   m_depth_image;
+        int                               m_phi;
+        int                               m_theta;
+        // TODO: add simulation values.
+    };
+
+    void test_lodepng(std::string filename);
 }
 #endif
