@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 13:29:58
+* @Last Modified time: 2017-10-23 13:53:44
 */
 
 #include <iostream>
@@ -41,14 +41,17 @@ int main()
     const double near_far_step = (camera_far - camera_near) / max_depth;
     
     // Map depth values to camera near/far space.
+    // Currently not being mapped because of the scale in pcl cloud.
+    // TODO: Remove far plane from the point cloud
+    // TODO: Rotate the depth image according to the theta and phi.
     // for(std::vector<std::vector<float>>::iterator row=depth_image.begin(); row!=depth_image.end(); row++)
     // {
     //     for(std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
     //         *col = *col / max_depth;
     // }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr image_depth_cloud(
-            new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud(
+            new pcl::PointCloud<pcl::PointXYZRGB>);
     image_depth_cloud->points.resize(depth_image.size() * depth_image[0].size());
 
     // Generate the point cloud out of the depth values.
@@ -59,35 +62,14 @@ int main()
         {
             image_depth_cloud->points[idx].z = col - row->begin();
             image_depth_cloud->points[idx].y = row - depth_image.begin();
-            image_depth_cloud->points[idx].x = *col;
+            image_depth_cloud->points[idx].x = *col; // Switched with z just so that I don't have to rotate it every time when vieweing
+            image_depth_cloud->points[idx].r = *col;
+            image_depth_cloud->points[idx].g = 50;
+            image_depth_cloud->points[idx].b = 50;
             idx++;
-            // std::cout << *col << " ";
         }
             
     }
-
-    // // Read in the cloud.
-    // pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = 
-    //     pcl_utils::open_RGBpcd("test.pcd");
-	
-    // // Generate a point cloud.
-    // pcl::PointCloud<pcl::PointXYZRGB>::Ptr sphere_cloud =
-    //     pcl_utils::generate_sphere_cloud(5000);
-
-    // //
-    // // Reconstruct the surface.
-    // //
-    // pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals =
-    //     pcl_utils::estimate_normals(sphere_cloud);
-
-    // pcl::PolygonMesh mesh = pcl_utils::greedy_surface_reconstruct(
-    //     cloud_with_normals,
-    //     0.2,
-    //     5.5,
-    //     100,
-    //     M_PI / 18,
-    //     2 * M_PI / 3,
-    //     false);
 
     //  
     // Visualize the cloud.
@@ -97,15 +79,10 @@ int main()
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(
         new pcl::visualization::PCLVisualizer("3D viewer"));
     viewer->setBackgroundColor(0, 0, 0);
-    // pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB>
-    //     rgb(sphere_cloud);
-    // viewer->addPolygonMesh(mesh, "sample mesh");
-    // viewer->setPointCloudRenderingProperties(
-    //     pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
-    //     3,
-    //     "sample mesh");
 
-    viewer->addPointCloud<pcl::PointXYZ>(image_depth_cloud, "sample cloud");
+    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB>
+        rgb(image_depth_cloud);
+    viewer->addPointCloud<pcl::PointXYZRGB>(image_depth_cloud, rgb, "sample cloud");
     viewer->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
         3,
