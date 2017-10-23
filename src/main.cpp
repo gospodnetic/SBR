@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-18 16:05:21
+* @Last Modified time: 2017-10-23 12:42:13
 */
 
 #include <iostream>
@@ -22,7 +22,30 @@
 
 int main()
 {
-    cinema::test_read_cinema_image();
+    // Takes about a second to read the depth image.
+    // TODO: pass a pointer Instead of using swap file.
+    std::vector<std::vector<float>> depth_image = cinema::read_depth_image();
+    //
+    // Get max element of a 2D vector.
+    //
+    std::vector<float> column_maxs;
+    for(std::vector<std::vector<float>>::const_iterator row=depth_image.begin(); row!=depth_image.end(); row++)
+    {
+        column_maxs.push_back(*std::max_element(row->begin(), row->end()));
+    }
+    const float max_depth = *std::max_element(std::begin(column_maxs), std::end(column_maxs));
+
+    // Camera near far out of info.json.
+    const double camera_near = 2.305517831184482;
+    const double camera_far = 4.6363642410628785;
+    const double near_far_step = (camera_far - camera_near) / max_depth;
+    
+    // Map depth values to camera near/far space.
+    for(std::vector<std::vector<float>>::iterator row=depth_image.begin(); row!=depth_image.end(); row++)
+    {
+        for(std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
+            *col = *col * near_far_step + camera_near;
+    }
     // cinema::test_lodepng("/home/petra/Desktop/SampleBasedReconstruction/screenshot-1508257412.png");
 
     // // Read in the cloud.

@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 11:28:14
+* @Last Modified time: 2017-10-23 12:31:54
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -12,7 +12,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include "../submodules/lodepng/lodepng.h"
 
@@ -33,7 +32,7 @@ namespace cinema
         if(error) std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
     }
 
-    void test_read_cinema_image()
+    std::vector<std::vector<float>> read_depth_image()
     {
         //
         // Read .npz file
@@ -44,12 +43,9 @@ namespace cinema
         const std::string system_call = "python ../python_utils/npz2yaml.py -i " + filename;
         std::system(system_call.c_str());
 
-        std::vector<std::vector<float>> npz_array = YAML::LoadFile(filename + ".yaml").as<std::vector<std::vector<float>>>();
-        // // Otput the data.
-        for (std::vector<std::vector<float>>::iterator row=npz_array.begin(); row!=npz_array.end(); row++) {
-            for (std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
-                std::cout << *col << " ";
-        }
+        std::vector<std::vector<float>> depth_array = YAML::LoadFile(filename + ".yaml").as<std::vector<std::vector<float>>>();
+
+        return depth_array;
     }
 } // !namespace cinema
 

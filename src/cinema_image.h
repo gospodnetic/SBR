@@ -9,11 +9,12 @@
 #define CINEMA_IMAGE_P
 
 #include <string>
+#include <vector>
 
 namespace cinema
 {
     void test_lodepng(std::string filename);
 
-    void test_read_cinema_image();
+    std::vector<std::vector<float>> read_depth_image();
 }
 #endif
