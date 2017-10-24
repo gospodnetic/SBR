@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 10:32:30
+* @Last Modified time: 2017-10-24 15:04:28
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -32,10 +32,6 @@ namespace cinema
         m_depth_image = read_depth_image(filename);
         m_phi_rad = m_phi * M_PI / 180;
         m_theta_rad = m_theta * M_PI / 180;
-        std::cout << "m_phi: " << m_phi << std::endl;
-        std::cout << "m_phi_rad: " << m_phi_rad << std::endl;
-        std::cout << "m_theta: " << m_theta << std::endl;
-        std::cout << "m_theta_rad: " << m_theta_rad << std::endl;
         // TODO: figure out if the depth values should be mapped into camera
         // space or not.
 
