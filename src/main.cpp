@@ -2,9 +2,10 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 10:54:44
+* @Last Modified time: 2017-10-24 13:30:13
 */
 
+#include <fstream>
 #include <iostream>
 
 #include <pcl/io/pcd_io.h>
@@ -12,10 +13,24 @@
 #include <pcl/visualization/pcl_visualizer.h>
 
 #include "cinema_image.h"
+#include "json/json.h"
 #include "pcl_utils.h"
 
 int main()
 {    
+    // Load database info.json.
+    const std::string filename_json = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/info.json";
+    std::ifstream info_file(filename_json.c_str(), ifstream::binary);
+    Json::Value info_json;
+    info_file >> info_json;
+
+    Json::Value::Members members = info_json.getMemberNames();
+    for(Json::Value::Members::const_iterator it = members.begin(); it != members.end(); it++)
+        std::cout << *it << std::endl;
+
+
+
+    // Read the iamge.
     cinema::CinemaImage cinema_image("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",
         90,
         90);
