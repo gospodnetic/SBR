@@ -2,19 +2,13 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 10:42:20
+* @Last Modified time: 2017-10-24 10:54:44
 */
 
 #include <iostream>
 
-#include <boost/thread/thread.hpp>
-
 #include <pcl/io/pcd_io.h>
-#include <pcl/io/vtk_io.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/features/normal_3d.h>
 #include <pcl/point_types.h>
-#include <pcl/surface/gp3.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
 #include "cinema_image.h"
@@ -24,7 +18,7 @@ int main()
 {    
     cinema::CinemaImage cinema_image("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",
         90,
-        0);
+        90);
 
     
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud = 
