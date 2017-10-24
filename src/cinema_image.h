@@ -36,17 +36,22 @@ namespace cinema
             const std::string                   filename) const;
 
         std::vector<std::vector<float>>   m_depth_image;
-        double                               m_phi;
-        double                               m_theta;
-        double                               m_phi_rad;
-        double                               m_theta_rad;
+        double                            m_phi;
+        double                            m_theta;
+        double                            m_phi_rad;
+        double                            m_theta_rad;
+        double                            m_far_plane; // Should be 255 
+                                            // but it has happened to be 256.
+                                            // Therefore, we have a var storing
+                                            // the max depth value as the
+                                            // representation of the far plane.
         // TODO: add simulation values.
     };
 
     std::vector<CinemaImage> load_cinema_db(
         const std::string db_path,
         const std::string db_label);
-    
+
     void test_lodepng(std::string filename);
 }
 #endif

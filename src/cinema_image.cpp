@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 15:23:47
+* @Last Modified time: 2017-10-24 16:37:20
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -34,6 +34,15 @@ namespace cinema
         m_depth_image = read_depth_image(filename);
         m_phi_rad = m_phi * M_PI / 180;
         m_theta_rad = m_theta * M_PI / 180;
+
+        std::vector<float> column_maxs;
+        for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
+        {
+            column_maxs.push_back(*std::max_element(row->begin(), row->end()));
+        }
+        const float max_depth = *std::max_element(std::begin(column_maxs), std::end(column_maxs));
+        m_far_plane = max_depth;
+
         // TODO: figure out if the depth values should be mapped into camera
         // space or not.
 
@@ -117,6 +126,14 @@ namespace cinema
         {
             for(std::vector<float>::const_iterator col=row->begin(); col!=row->end(); col++)
             {
+                // Do not use points which represent the far plane.
+                // TODO: This is float to double comparison - FIX POTENTIAL ERROR!
+                // TODO: What Can I resize the point cloud initially to fit the 
+                //       number of points which are actually used? Is there a
+                //       way to resize it again afterwards?
+                if(*col == m_far_plane)
+                    continue;
+
                 // x y z vector.
                 Eigen::Vector3d pos(
                     -*col,
