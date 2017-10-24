@@ -33,14 +33,18 @@ namespace cinema
 
       private:
         std::vector<std::vector<float>> read_depth_image(
-            const std::string                   filename) const;
+            const std::string           filename) const;
 
-        std::vector<std::vector<float>>   m_depth_image;
-        double                            m_phi;
-        double                            m_theta;
-        double                            m_phi_rad;
-        double                            m_theta_rad;
-        double                            m_far_plane; // Should be 255 
+        std::vector<std::vector<float>> m_depth_image;
+        double                          m_phi;
+        double                          m_theta;
+        double                          m_phi_rad;
+        double                          m_theta_rad;
+        double                          m_camera_near;
+        double                          m_camera_far;
+        double                          m_near_far_step;
+
+        double                          m_far_plane; // Should be 255 
                                             // but it has happened to be 256.
                                             // Therefore, we have a var storing
                                             // the max depth value as the

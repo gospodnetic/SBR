@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 16:37:20
+* @Last Modified time: 2017-10-24 17:13:27
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -35,6 +35,7 @@ namespace cinema
         m_phi_rad = m_phi * M_PI / 180;
         m_theta_rad = m_theta * M_PI / 180;
 
+        // Get max element of a 2D vector.
         std::vector<float> column_maxs;
         for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
         {
@@ -46,29 +47,18 @@ namespace cinema
         // TODO: figure out if the depth values should be mapped into camera
         // space or not.
 
-        //
-        // Get max element of a 2D vector.
-        //
-        // std::vector<float> column_maxs;
-        // for(std::vector<std::vector<float>>::const_iterator row=depth_image.begin(); row!=depth_image.end(); row++)
-        // {
-        //     column_maxs.push_back(*std::max_element(row->begin(), row->end()));
-        // }
-        // const float max_depth = *std::max_element(std::begin(column_maxs), std::end(column_maxs));
-
-        // // Camera near far out of info.json.
-        // const double camera_near = 2.305517831184482;
-        // const double camera_far = 4.6363642410628785;
-        // const double near_far_step = (camera_far - camera_near) / max_depth;
+        // Camera near far out of info.json.
+        // TODO: Unnecessary duplication - move it somewhere more appropriate.
+        m_camera_near = 2.305517831184482;
+        m_camera_far = 4.6363642410628785;
+        m_near_far_step = (m_camera_far - m_camera_near) / max_depth;
         
         // Map depth values to camera near/far space.
         // Currently not being mapped because of the scale in pcl cloud.
-        // TODO: Remove far plane from the point cloud
-        // TODO: Rotate the depth image according to the theta and phi.
-        // for(std::vector<std::vector<float>>::iterator row=depth_image.begin(); row!=depth_image.end(); row++)
+        // for(std::vector<std::vector<float>>::iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
         // {
         //     for(std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
-        //         *col = *col / max_depth;
+        //         *col = camera_near + near_far_step * (*col / max_depth);
         // }
     }
 
@@ -134,9 +124,10 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
+                const float depth = m_camera_near + m_near_far_step * (*col / m_far_plane);
                 // x y z vector.
                 Eigen::Vector3d pos(
-                    -*col,
+                    -depth,
                     col - row->begin(),
                     row - m_depth_image.begin());
                 pos = rot_matrix * pos;
@@ -144,7 +135,7 @@ namespace cinema
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
                 point_cloud->points[idx].z = pos[2];
-                point_cloud->points[idx].r = *col;
+                point_cloud->points[idx].r = depth;
                 point_cloud->points[idx].g = 50;
                 point_cloud->points[idx].b = 50;
                 idx++;
