@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 16:52:16
+* @Last Modified time: 2017-10-24 10:32:30
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -24,13 +24,18 @@ namespace cinema
         const std::string   filename,
         const int           phi,
         const int           theta)
-    :m_phi(phi)
-    ,m_theta(theta)
+    : m_phi(phi)
+    , m_theta(theta)
     {
         // Takes about a second to read the depth image.
         // TODO: pass a pointer Instead of using swap file.
         m_depth_image = read_depth_image(filename);
-
+        m_phi_rad = m_phi * M_PI / 180;
+        m_theta_rad = m_theta * M_PI / 180;
+        std::cout << "m_phi: " << m_phi << std::endl;
+        std::cout << "m_phi_rad: " << m_phi_rad << std::endl;
+        std::cout << "m_theta: " << m_theta << std::endl;
+        std::cout << "m_theta_rad: " << m_theta_rad << std::endl;
         // TODO: figure out if the depth values should be mapped into camera
         // space or not.
 
@@ -98,11 +103,16 @@ namespace cinema
 
         // Rotation matrix.
         Eigen::Matrix3d rot_phi;
-        rot_phi <<  cos(m_phi), sin(m_phi), 0,
-                   -sin(m_phi), cos(m_phi), 0,
-                    0         , 0         , 0;
-        std::cout << rot_phi << std::endl;
+        rot_phi <<  cos(m_phi_rad), sin(m_phi_rad), 0,
+                   -sin(m_phi_rad), cos(m_phi_rad), 0,
+                    0             , 0             , 1;
 
+        Eigen::Matrix3d rot_theta;
+        rot_theta << 1,                0,                0,
+                     0, cos(m_theta_rad), sin(m_theta_rad),
+                     0,-sin(m_theta_rad), cos(m_theta_rad);
+
+        Eigen::Matrix3d rot_matrix = rot_theta * rot_phi;
         // Generate the point cloud out of the depth values.
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
@@ -111,10 +121,10 @@ namespace cinema
             {
                 // x y z vector.
                 Eigen::Vector3d pos(
+                    -*col,
                     col - row->begin(),
-                    col - row->begin(),
-                    *col);
-                pos = rot_phi * pos;
+                    row - m_depth_image.begin());
+                pos = rot_matrix * pos;
 
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];

@@ -36,8 +36,10 @@ namespace cinema
             const std::string                   filename) const;
 
         std::vector<std::vector<float>>   m_depth_image;
-        int                               m_phi;
-        int                               m_theta;
+        double                               m_phi;
+        double                               m_theta;
+        double                               m_phi_rad;
+        double                               m_theta_rad;
         // TODO: add simulation values.
     };
 

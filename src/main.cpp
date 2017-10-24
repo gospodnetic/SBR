@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-23 16:49:17
+* @Last Modified time: 2017-10-24 10:42:20
 */
 
 #include <iostream>
@@ -23,7 +23,7 @@
 int main()
 {    
     cinema::CinemaImage cinema_image("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",
-        -90,
+        90,
         0);
 
     
