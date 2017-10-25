@@ -5,8 +5,8 @@
 * @Last Modified time: 2017-10-17 16:32:07
 */
 
-#ifndef CINEMA_IMAGE_P
-#define CINEMA_IMAGE_P
+#ifndef CINEMA_IMAGE_H
+#define CINEMA_IMAGE_H
 
 #include <string>
 #include <vector>
@@ -57,5 +57,5 @@ namespace cinema
         const std::string db_label);
 
     void test_lodepng(std::string filename);
-}
+}       // !namespace cinema
 #endif

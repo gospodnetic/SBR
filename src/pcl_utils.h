@@ -5,6 +5,9 @@
 * @Last Modified time: 2017-10-18 10:36:09
 */
 
+#ifndef PCL_UTILS_H
+#define PCL_UTILS_H
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
@@ -30,3 +33,5 @@ namespace pcl_utils
         const double    max_angle,
         const bool      normal_consistency);
 }
+
+#endif
