@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 12:32:45
+* @Last Modified time: 2017-10-25 13:06:03
 */
 
 #include "cinema_db.h"
@@ -14,25 +14,28 @@ namespace cinema
     CinemaDB::CinemaDB(
         const std::string   db_path,
         const std::string   db_label,
-        const double        camera_near,
-        const double        camera_far,
         const int           n_phi_angles) // Number of phi angles.
-    : m_camera_near(camera_near)
-    , m_camera_far(camera_far)
     {
-        m_depth_images = load_cinema_db(db_path, db_label, n_phi_angles);
+        load_cinema_db(db_path, db_label, n_phi_angles);
     }
 
-    std::vector<CinemaImage> CinemaDB::load_cinema_db(
+    void CinemaDB::load_cinema_db(
         const std::string   db_path,
         const std::string   db_label,
-        const int           n_phi_angles) const
+        const int           n_phi_angles)
     {
         // Load database info.json.
         const std::string filename_json = db_path + "/info.json";
         std::ifstream info_file(filename_json.c_str(), std::ifstream::binary);
         Json::Value info_json;
         info_file >> info_json;
+
+        // Rad camera values.
+        // NOTE: [0] index before indexing is a hack due to bad .json generator.
+        //       Camera near far values are generated as array within an array
+        //       for some reason.
+        m_camera_near = info_json["metadata"]["camera_nearfar"][0][0].asDouble();
+        m_camera_far = info_json["metadata"]["camera_nearfar"][0][1].asDouble();
 
         // Read phi values
         std::vector<int> phi_values;
@@ -66,7 +69,6 @@ namespace cinema
         }
         else
         {
-            std::cout << "Some images: " << n_phi_angles << std::endl;
             int count = 0;
             // Read the depth values for n phi angles.
             for(std::vector<int>::const_iterator it_phi = phi_values.begin(); (it_phi - phi_values.begin()) < n_phi_angles && (it_phi != phi_values.end()); it_phi++)
@@ -84,7 +86,7 @@ namespace cinema
             }
         }
 
-        return cinema_db;
+        m_depth_images = cinema_db;
     }
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr CinemaDB::point_cloud_rgb(

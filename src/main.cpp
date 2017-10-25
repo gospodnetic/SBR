@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 12:23:10
+* @Last Modified time: 2017-10-25 12:37:12
 */
 
 #include <iostream>
@@ -23,8 +23,6 @@ int main()
     cinema::CinemaDB cinema_db(
         db_path,
         db_label,
-        2.305517831184482,
-        4.6363642410628785,
         3);
 
     // Concatenate all the depth values into a single cloud.
