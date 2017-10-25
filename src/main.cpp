@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 16:04:01
+* @Last Modified time: 2017-10-25 10:59:56
 */
 
 #include <iostream>
@@ -11,7 +11,7 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
-#include "cinema_image.h"
+#include "cinema_db.h"
 #include "pcl_utils.h"
 
 int main()
@@ -20,16 +20,14 @@ int main()
     const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image";
     const std::string db_label = "colorSphere1";
 
-    std::vector<cinema::CinemaImage> cinema_db = cinema::load_cinema_db(
+    cinema::CinemaDB cinema_db(
         db_path,
-        db_label);
+        db_label,
+        2.305517831184482,
+        4.6363642410628785);
 
-    std::cout << "Number of read images: " << cinema_db.size() << std::endl;
-
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud(
-        new pcl::PointCloud<pcl::PointXYZRGB>);
-    for(std::vector<cinema::CinemaImage>::const_iterator it = cinema_db.begin(); it != cinema_db.end(); it++)
-        *image_depth_cloud += *(it->point_cloud_rgb());
+    // Concatenate all the depth values into a single cloud.
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud = cinema_db.point_cloud_rgb();
     
     // // Read the image.
     // cinema::CinemaImage cinema_image1("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",

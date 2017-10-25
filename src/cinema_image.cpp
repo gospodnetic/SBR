@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-24 17:13:27
+* @Last Modified time: 2017-10-25 09:31:05
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -17,7 +17,6 @@
 #include "../submodules/lodepng/lodepng.h"
 
 #include "Eigen/Dense"
-#include "json/json.h"
 #include "yaml-cpp/yaml.h"
 
 namespace cinema
@@ -124,7 +123,7 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
-                const float depth = m_camera_near + m_near_far_step * (*col / m_far_plane);
+                const float depth = m_near_far_step * (*col / m_far_plane);
                 // x y z vector.
                 Eigen::Vector3d pos(
                     -depth,
@@ -161,46 +160,6 @@ namespace cinema
         std::vector<std::vector<float>> depth_array = YAML::LoadFile(filename + ".yaml").as<std::vector<std::vector<float>>>();
 
         return depth_array;
-    }
-
-    std::vector<CinemaImage> load_cinema_db(
-        const std::string db_path,
-        const std::string db_label)
-    {
-        // Load database info.json.
-        const std::string filename_json = db_path + "/info.json";
-        std::ifstream info_file(filename_json.c_str(), std::ifstream::binary);
-        Json::Value info_json;
-        info_file >> info_json;
-
-        // Read phi values
-        std::vector<int> phi_values;
-        Json::Value phi = info_json["parameter_list"]["phi"]["values"];
-        for(Json::ValueIterator it = phi.begin();  it != phi.end(); it++)
-            phi_values.push_back(it->asInt());
-
-        // Read theta values
-        std::vector<int> theta_values;
-        Json::Value theta = info_json["parameter_list"]["theta"]["values"];
-        for(Json::ValueIterator it = theta.begin(); it != theta.end(); it++)
-            theta_values.push_back(it->asInt());
-
-        // Read the depth values for all positions
-        std::vector<CinemaImage> CinemaDB;
-        for(std::vector<int>::const_iterator it_phi = phi_values.begin(); it_phi != phi_values.end(); it_phi++)
-        {
-            const size_t idx_phi = it_phi - phi_values.begin();
-            std::string dir_phi = db_path + "/phi=" + std::to_string(idx_phi);
-            for(std::vector<int>::const_iterator it_theta = theta_values.begin(); it_theta != theta_values.end(); it_theta++)
-            {
-                const size_t idx_theta = it_theta - theta_values.begin();
-                std::string dir_theta = dir_phi + "/theta=" + std::to_string(idx_theta);
-                std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
-                CinemaDB.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));
-            }
-        }
-
-        return CinemaDB;
     }
     
     void test_lodepng(std::string filename)

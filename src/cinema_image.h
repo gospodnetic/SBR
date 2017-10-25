@@ -52,10 +52,6 @@ namespace cinema
         // TODO: add simulation values.
     };
 
-    std::vector<CinemaImage> load_cinema_db(
-        const std::string db_path,
-        const std::string db_label);
-
     void test_lodepng(std::string filename);
 }       // !namespace cinema
 #endif
