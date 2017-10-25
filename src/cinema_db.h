@@ -31,13 +31,16 @@ namespace cinema
             const std::string   db_path,
             const std::string   db_label,
             const double        camera_near,
-            const double        camera_far);
+            const double        camera_far,
+            const int           n_phi_angles = -1);
 
         std::vector<CinemaImage> load_cinema_db(
-            const std::string db_path,
-            const std::string db_label) const;
+        const std::string   db_path,
+        const std::string   db_label,
+        const int           number_of_images = -1) const;
 
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb() const;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb(
+            const int number_of_images = -1) const;
 
       private:
 

@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 10:59:56
+* @Last Modified time: 2017-10-25 12:23:10
 */
 
 #include <iostream>
@@ -24,10 +24,11 @@ int main()
         db_path,
         db_label,
         2.305517831184482,
-        4.6363642410628785);
+        4.6363642410628785,
+        3);
 
     // Concatenate all the depth values into a single cloud.
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud = cinema_db.point_cloud_rgb();
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud = cinema_db.point_cloud_rgb(3);
     
     // // Read the image.
     // cinema::CinemaImage cinema_image1("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",

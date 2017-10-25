@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 09:31:05
+* @Last Modified time: 2017-10-25 12:29:46
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -126,7 +126,7 @@ namespace cinema
                 const float depth = m_near_far_step * (*col / m_far_plane);
                 // x y z vector.
                 Eigen::Vector3d pos(
-                    -depth,
+                    -*col,
                     col - row->begin(),
                     row - m_depth_image.begin());
                 pos = rot_matrix * pos;
@@ -134,7 +134,7 @@ namespace cinema
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
                 point_cloud->points[idx].z = pos[2];
-                point_cloud->points[idx].r = depth;
+                point_cloud->points[idx].r = *col;
                 point_cloud->points[idx].g = 50;
                 point_cloud->points[idx].b = 50;
                 idx++;
@@ -161,7 +161,7 @@ namespace cinema
 
         return depth_array;
     }
-    
+
     void test_lodepng(std::string filename)
     {
         std::vector<unsigned char> image; //the raw pixels
