@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 12:37:12
+* @Last Modified time: 2017-10-26 10:08:55
 */
 
 #include <iostream>
@@ -14,19 +14,25 @@
 #include "cinema_db.h"
 #include "pcl_utils.h"
 
-int main()
+int main(int argc, char* argv[])
 {   
     // Static paths to the image db structure in folders.
     const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image";
     const std::string db_label = "colorSphere1";
 
+    int number_of_images = -1;
+    if(argc > 1)
+        number_of_images = atoi(argv[1]);
+
     cinema::CinemaDB cinema_db(
         db_path,
         db_label,
-        3);
+        number_of_images);
+
 
     // Concatenate all the depth values into a single cloud.
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud = cinema_db.point_cloud_rgb(3);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud =
+        cinema_db.point_cloud_rgb();
     
     // // Read the image.
     // cinema::CinemaImage cinema_image1("/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image/phi=0/theta=0/vis=0/colorSphere1=0.npz",
