@@ -2,10 +2,12 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 13:06:03
+* @Last Modified time: 2017-10-26 11:44:21
 */
 
 #include "cinema_db.h"
+
+#include <cmath>
 
 #include "json/json.h"
 
@@ -16,7 +18,29 @@ namespace cinema
         const std::string   db_label,
         const int           n_phi_angles) // Number of phi angles.
     {
+        // Load depth images and read info.json values.
         load_cinema_db(db_path, db_label, n_phi_angles);
+
+        // Calculate perspective projection matrix.
+        const double S = 1 / tan((m_camera_angle / 2));
+        
+        // // Projection matrix from https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix
+        // m_projection_matrix <<
+        // const double a = -m_camera_far / (m_camera_far - m_camera_near);
+        // const double b = -m_camera_far * m_camera_near / (m_camera_far - m_camera_near);
+        //     S,  0,  0,  0,
+        //     0,  S,  0,  0,
+        //     0,  0,  a, -1,
+        //     0,  0,  b,  0;
+        // Projection matrix from http://www.terathon.com/gdc07_lengyel.pdf
+        const double a = S / (422.0f / 519.0f);
+        const double b = -(m_camera_far + m_camera_near) / (m_camera_far - m_camera_near);
+        const double c = -2 * m_camera_far * m_camera_near / (m_camera_far - m_camera_near);
+        m_projection_matrix <<
+            S,  0,  0,  0,
+            0,  a,  0,  0,
+            0,  0,  b,  c,
+            0,  0, -1,  0;
     }
 
     void CinemaDB::load_cinema_db(
@@ -36,6 +60,7 @@ namespace cinema
         //       for some reason.
         m_camera_near = info_json["metadata"]["camera_nearfar"][0][0].asDouble();
         m_camera_far = info_json["metadata"]["camera_nearfar"][0][1].asDouble();
+        m_camera_angle = info_json["metadata"]["camera_angle"][0].asDouble();
 
         // Read phi values
         std::vector<int> phi_values;
@@ -99,7 +124,7 @@ namespace cinema
         {
             // Load all the depth images into the point cloud.
             for(std::vector<CinemaImage>::const_iterator it = m_depth_images.begin(); it != m_depth_images.end(); it++)
-                *image_depth_cloud += *(it->point_cloud_rgb());
+                *image_depth_cloud += *(it->point_cloud_rgb(m_projection_matrix));
         }
         else
         {
@@ -110,7 +135,7 @@ namespace cinema
                 ((it - m_depth_images.begin()) < number_of_images) && it != m_depth_images.end();
                 it++)
             {
-                *image_depth_cloud += *(it->point_cloud_rgb());
+                *image_depth_cloud += *(it->point_cloud_rgb(m_projection_matrix));
                 std::cout << count++ << std::endl;                
             }
         }

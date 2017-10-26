@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-25 12:29:46
+* @Last Modified time: 2017-10-26 13:30:05
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -91,25 +91,38 @@ namespace cinema
     *   TODO: Add simulation values - currenly it returns only depth with
     *   arbitrary color.
     */
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr CinemaImage::point_cloud_rgb() const
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr CinemaImage::point_cloud_rgb(
+        Eigen::Matrix4d projection_matrix) const
     {
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud(
             new pcl::PointCloud<pcl::PointXYZRGB>);
         point_cloud->points.resize(m_depth_image.size() * m_depth_image[0].size());
 
         // Rotation matrix.
-        Eigen::Matrix3d rot_phi;
-        rot_phi <<  cos(m_phi_rad), sin(m_phi_rad), 0,
-                   -sin(m_phi_rad), cos(m_phi_rad), 0,
-                    0             , 0             , 1;
+        // Eigen::Matrix4d rot_phi;
+        // rot_phi <<  cos(m_phi_rad), sin(m_phi_rad), 0, 0,
+        //            -sin(m_phi_rad), cos(m_phi_rad), 0, 0,
+        //             0             , 0             , 1, 0,
+        //             0             , 0             , 0, 1;
+        
+        Eigen::Matrix4d rot_theta;
+        rot_theta <<  cos(m_theta_rad), sin(m_theta_rad), 0, 0,
+                     -sin(m_theta_rad), cos(m_theta_rad), 0, 0,
+                      0               , 0               , 1, 0,
+                      0               , 0               , 0, 1;
 
-        Eigen::Matrix3d rot_theta;
-        rot_theta << 1,                0,                0,
-                     0, cos(m_theta_rad), sin(m_theta_rad),
-                     0,-sin(m_theta_rad), cos(m_theta_rad);
+        Eigen::Matrix4d rot_phi;
+        rot_phi << 1,                0,                0, 0,
+                     0, cos(m_phi_rad), sin(m_phi_rad), 0,
+                     0,-sin(m_phi_rad), cos(m_phi_rad), 0,
+                     0,                0,                0, 1;
 
-        Eigen::Matrix3d rot_matrix = rot_theta * rot_phi;
+        Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
+
         // Generate the point cloud out of the depth values.
+        const int width_half = 519 / 2;
+        const int height_half = 422 / 2;
+        const float depth_shift = m_camera_near + m_near_far_step * m_far_plane;
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
         {
@@ -123,13 +136,29 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
-                const float depth = m_near_far_step * (*col / m_far_plane);
+                const float depth = m_camera_near + m_near_far_step * (*col);
+                // std::cout << "\nImage depth: " << *col << std::endl;
+                // std::cout << "depth: " << depth << std::endl;
+                // std::cout << "m_far_plane: " << m_far_plane << std::endl;
+                // std::cout << "m_near_far_step: " << m_near_far_step << std::endl;
+                // std::cout << "*col / m_far_plane: " << *col / m_far_plane << std::endl;
                 // x y z vector.
-                Eigen::Vector3d pos(
-                    -*col,
-                    col - row->begin(),
-                    row - m_depth_image.begin());
-                pos = rot_matrix * pos;
+                Eigen::Vector4d pos(
+                    (col - row->begin() - width_half) * m_near_far_step,
+                    (row - m_depth_image.begin() - height_half) * m_near_far_step,
+                    depth - 1.5*depth_shift,
+                    1);
+                // Eigen::Vector4d pos(
+                //     *col,
+                //     col - row->begin(),
+                //     row - m_depth_image.begin(),
+                //     1);
+
+                std::cout << "position: " << pos << std::endl;
+
+                // pos = rot_matrix * pos;
+                pos = rot_matrix * projection_matrix * pos;
+                // pos = rot_matrix * projection_matrix.inverse() * pos;
 
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];

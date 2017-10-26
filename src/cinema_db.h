@@ -44,6 +44,8 @@ namespace cinema
         std::vector<CinemaImage>        m_depth_images; // .npz files from cinema database
         double                          m_camera_near;  // Camera near plane
         double                          m_camera_far;   // Camera far plane
+        double                          m_camera_angle; // Field of view
+        Eigen::Matrix4d                 m_projection_matrix;
     };
     void test_lodepng(std::string filename);
 }

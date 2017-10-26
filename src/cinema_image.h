@@ -29,7 +29,8 @@ namespace cinema
             const int           phi,
             const int           theta);
         pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud() const;
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb() const;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb(
+            Eigen::Matrix4d projection_matrix) const;
 
       private:
         std::vector<std::vector<float>> read_depth_image(
