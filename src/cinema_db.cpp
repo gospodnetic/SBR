@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-26 15:00:27
+* @Last Modified time: 2017-10-30 13:38:28
 */
 
 #include "cinema_db.h"
@@ -33,7 +33,7 @@ namespace cinema
         //     0,  0,  a, -1,
         //     0,  0,  b,  0;
         // Projection matrix from http://www.terathon.com/gdc07_lengyel.pdf
-        const double a = S / (422.0f / 519.0f);
+        // but with aspect ratio 1 (m_projection_matrix[1][1] = S)
         const double b = -(m_camera_far + m_camera_near) / (m_camera_far - m_camera_near);
         const double c = -2 * m_camera_far * m_camera_near / (m_camera_far - m_camera_near);
         m_projection_matrix <<
