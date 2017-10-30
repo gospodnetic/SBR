@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-30 13:51:42
+* @Last Modified time: 2017-10-30 16:03:21
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -102,24 +102,30 @@ namespace cinema
         // Angles phi and theta are switched because we assume depth is along
         // the z axi, instead of x. That is done so that it corresponds with the
         // projection matrix.
-        Eigen::Matrix4d rot_theta;
-        rot_theta <<  cos(m_theta_rad), sin(m_theta_rad), 0, 0,
-                     -sin(m_theta_rad), cos(m_theta_rad), 0, 0,
-                      0               , 0               , 1, 0,
-                      0               , 0               , 0, 1;
+        Eigen::Matrix3d rot_theta;
+        rot_theta <<  cos(m_theta_rad), sin(m_theta_rad), 0,
+                     -sin(m_theta_rad), cos(m_theta_rad), 0,
+                      0               , 0               , 1;
 
-        Eigen::Matrix4d rot_phi;
-        rot_phi <<  1,              0,              0, 0,
-                    0, cos(m_phi_rad), sin(m_phi_rad), 0,
-                    0,-sin(m_phi_rad), cos(m_phi_rad), 0,
-                    0,              0,              0, 1;
+        Eigen::Matrix3d rot_phi;
+        rot_phi <<  1,              0,              0,
+                    0, cos(m_phi_rad), sin(m_phi_rad),
+                    0,-sin(m_phi_rad), cos(m_phi_rad);
 
-        Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
+        Eigen::Matrix3d rot_matrix = rot_phi * rot_theta;
 
         // Generate the point cloud out of the depth values.
-        const int width_half = 519 / 2;
-        const int height_half = 422 / 2;
-        const float depth_shift = m_camera_near + m_near_far_step * m_far_plane;
+        const double sensor_width = 519.0f;
+        const double sensor_height = 422.0f;
+
+        const double width_half = 519 / 2.0f;
+        const double height_half = 422 / 2.0f;
+
+        Eigen::Vector3d cam_eye(0.0, 0.0, 3.3338563951358404);
+
+        const double angle = 1 / tan((30 / 2) * (M_PI / 180.0f));
+        const double aspect_ratio = sensor_width / double(sensor_height);
+
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
         {
@@ -134,31 +140,27 @@ namespace cinema
                     continue;
 
                 const float depth = m_near_far_step * (*col);
-                // std::cout << "\nImage depth: " << *col << std::endl;
-                // std::cout << "depth: " << depth << std::endl;
-                // std::cout << "m_far_plane: " << m_far_plane << std::endl;
-                // std::cout << "m_near_far_step: " << m_near_far_step << std::endl;
-                // std::cout << "*col / m_far_plane: " << *col / m_far_plane << std::endl;
-                // x y z vector.
-                Eigen::Vector4d pos(
-                    (col - row->begin() - width_half) * m_near_far_step,
-                    (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    depth - m_camera_far,
-                    1);
-                // Eigen::Vector4d pos(
-                //     *col,
-                //     col - row->begin(),
-                //     row - m_depth_image.begin(),
-                //     1);
 
-                // std::cout << "depth: " << depth << std::endl;
-                // std::cout << "depth_shift: " << depth_shift << std::endl;
-                // std::cout << "position: " << pos << std::endl;
+                const double x = col - row->begin();
+                const double y = row - m_depth_image.begin();
+                const double z = depth;
 
-                // pos = rot_matrix * pos;
-                pos = rot_matrix * projection_matrix * pos;
-                // pos = rot_matrix * projection_matrix.inverse() * pos;
+                const double camera_space_x = (2 * (x + 0.5) / sensor_width - 1) * angle * aspect_ratio;
+                const double camera_space_y = (2 * (y + 0.5) / sensor_height - 1) * angle;
 
+                Eigen::Vector3d ray_direction(
+                    camera_space_x,
+                    camera_space_y,
+                    -3.3338563951358404); // -camera_eye
+                ray_direction.normalize();
+                // std::cout << x << std::endl;
+                // std::cout << ray_direction << std::endl;
+
+                
+                Eigen::Vector3d pos = cam_eye + *col * ray_direction;
+
+                pos = rot_matrix * pos;
+                
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
                 point_cloud->points[idx].z = pos[2];
