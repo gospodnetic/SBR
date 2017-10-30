@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-26 11:44:21
+* @Last Modified time: 2017-10-26 15:00:27
 */
 
 #include "cinema_db.h"
@@ -38,7 +38,7 @@ namespace cinema
         const double c = -2 * m_camera_far * m_camera_near / (m_camera_far - m_camera_near);
         m_projection_matrix <<
             S,  0,  0,  0,
-            0,  a,  0,  0,
+            0,  S,  0,  0,
             0,  0,  b,  c,
             0,  0, -1,  0;
     }

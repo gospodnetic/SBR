@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-26 13:30:05
+* @Last Modified time: 2017-10-30 11:27:51
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -136,7 +136,7 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
-                const float depth = m_camera_near + m_near_far_step * (*col);
+                const float depth = m_near_far_step * (*col);
                 // std::cout << "\nImage depth: " << *col << std::endl;
                 // std::cout << "depth: " << depth << std::endl;
                 // std::cout << "m_far_plane: " << m_far_plane << std::endl;
@@ -146,7 +146,7 @@ namespace cinema
                 Eigen::Vector4d pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    depth - 1.5*depth_shift,
+                    depth - 4.415,
                     1);
                 // Eigen::Vector4d pos(
                 //     *col,
@@ -154,7 +154,9 @@ namespace cinema
                 //     row - m_depth_image.begin(),
                 //     1);
 
-                std::cout << "position: " << pos << std::endl;
+                // std::cout << "depth: " << depth << std::endl;
+                // std::cout << "depth_shift: " << depth_shift << std::endl;
+                // std::cout << "position: " << pos << std::endl;
 
                 // pos = rot_matrix * pos;
                 pos = rot_matrix * projection_matrix * pos;
