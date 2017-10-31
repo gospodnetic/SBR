@@ -17,7 +17,7 @@
 int main(int argc, char* argv[])
 {   
     // Static paths to the image db structure in folders.
-    const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C.cdb/image";
+    const std::string db_path = "/media/petra/688EFC278EFBEB86/Codebase/Petra/sbr/data/rainbowsphere_C_fake_theta.cdb/image";
     const std::string db_label = "colorSphere1";
 
     int number_of_images = -1;

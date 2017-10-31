@@ -22,7 +22,7 @@ namespace cinema
         load_cinema_db(db_path, db_label, n_phi_angles);
 
         // Calculate perspective projection matrix.
-        const double S = 1 / tan((m_camera_angle / 2));
+        const double S = 1 / tan((m_camera_angle) * (M_PI / 180));
         
         // // Projection matrix from https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix
         // m_projection_matrix <<
@@ -75,9 +75,10 @@ namespace cinema
             theta_values.push_back(it->asInt());
 
         std::vector<CinemaImage> cinema_db;
+        int count = 0;
         if(n_phi_angles < 0)
         {
-            std::cout << "All images: " << n_phi_angles << std::endl;
+            std::cout << "Reading all the images..." << std::endl;
             // Read the depth values for all positions
             for(std::vector<int>::const_iterator it_phi = phi_values.begin(); it_phi != phi_values.end(); it_phi++)
             {
@@ -89,12 +90,14 @@ namespace cinema
                     std::string dir_theta = dir_phi + "/theta=" + std::to_string(idx_theta);
                     std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
                     cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));
+                    std::cout << "Read " << count++ << std::endl;                
+                    std::cout << "Theta " << *it_theta << std::endl;                
+                    std::cout << "Phi " << *it_phi << std::endl;
                 }
             }
         }
         else
         {
-            int count = 0;
             // Read the depth values for n phi angles.
             for(std::vector<int>::const_iterator it_phi = phi_values.begin(); (it_phi - phi_values.begin()) < n_phi_angles && (it_phi != phi_values.end()); it_phi++)
             {
@@ -105,8 +108,7 @@ namespace cinema
                     const size_t idx_theta = it_theta - theta_values.begin();
                     std::string dir_theta = dir_phi + "/theta=" + std::to_string(idx_theta);
                     std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
-                    cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));
-                    std::cout << "Read " << count++ << std::endl;                
+                    cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));                
                 }
             }
         }

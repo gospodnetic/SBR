@@ -102,17 +102,25 @@ namespace cinema
         // Angles phi and theta are switched because we assume depth is along
         // the z axi, instead of x. That is done so that it corresponds with the
         // projection matrix.
+        // std::cout << "Theta rad: " << m_theta_rad << std::endl;
+        // std::cout << "Phi rad: " << m_phi_rad << std::endl;
         Eigen::Matrix4d rot_theta;
-        rot_theta <<  cos(m_theta_rad), sin(m_theta_rad), 0, 0,
-                     -sin(m_theta_rad), cos(m_theta_rad), 0, 0,
-                      0               , 0               , 1, 0,
+        rot_theta <<  cos(m_theta_rad), 0, sin(m_theta_rad), 0,
+                      0               , 1               , 0, 0,
+                     -sin(m_theta_rad), 0, cos(m_theta_rad), 0,
                       0               , 0               , 0, 1;
+        // std::cout << "Rot theta:\n" << rot_theta << std::endl;
 
         Eigen::Matrix4d rot_phi;
         rot_phi <<  1,              0,              0, 0,
                     0, cos(m_phi_rad), sin(m_phi_rad), 0,
                     0,-sin(m_phi_rad), cos(m_phi_rad), 0,
                     0,              0,              0, 1;
+        // rot_phi <<  cos(m_phi_rad), sin(m_phi_rad), 0, 0,
+        //              -sin(m_phi_rad), cos(m_phi_rad), 0, 0,
+        //               0               , 0               , 1, 0,
+        //               0               , 0               , 0, 1;
+        // std::cout << "Rot phi:\n" << rot_phi << std::endl;
 
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
@@ -141,9 +149,9 @@ namespace cinema
                 // std::cout << "*col / m_far_plane: " << *col / m_far_plane << std::endl;
                 // x y z vector.
                 Eigen::Vector4d pos(
-                    (col - row->begin() - width_half),
-                    (row - m_depth_image.begin() - height_half),
-                    *col,
+                    (col - row->begin() - width_half) * m_near_far_step,
+                    (row - m_depth_image.begin() - height_half) * m_near_far_step,
+                    depth - m_camera_far,
                     1);
                 // Eigen::Vector4d pos(
                 //     *col,
