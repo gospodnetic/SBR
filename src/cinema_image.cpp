@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-30 16:09:42
+* @Last Modified time: 2017-10-31 08:56:05
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -51,16 +51,8 @@ namespace cinema
         m_camera_near = 2.305517831184482;
         m_camera_far = 4.6363642410628785;
         m_near_far_step = (m_camera_far - m_camera_near) / max_depth;
-        
-        // Map depth values to camera near/far space.
-        // Currently not being mapped because of the scale in pcl cloud.
-        // for(std::vector<std::vector<float>>::iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
-        // {
-        //     for(std::vector<float>::iterator col=row->begin(); col!=row->end(); col++)
-        //         *col = camera_near + near_far_step * (*col / max_depth);
-        // }
     }
-
+        
     /*! \brief Return point cloud created out of the cinema image.
     *   
     */
@@ -98,29 +90,19 @@ namespace cinema
             new pcl::PointCloud<pcl::PointXYZRGB>);
         point_cloud->points.resize(m_depth_image.size() * m_depth_image[0].size());
         
-        // Rotation reference: http://mathworld.wolfram.com/EulerAngles.html
-        // Angles phi and theta are switched because we assume depth is along
-        // the z axi, instead of x. That is done so that it corresponds with the
-        // projection matrix.
-        // std::cout << "Theta rad: " << m_theta_rad << std::endl;
-        // std::cout << "Phi rad: " << m_phi_rad << std::endl;
+        // Rotation transformation with phi rotating around y-axis and theta
+        // rotating around x-axis.
         Eigen::Matrix4d rot_theta;
         rot_theta <<  cos(m_theta_rad), 0, sin(m_theta_rad), 0,
                       0               , 1               , 0, 0,
                      -sin(m_theta_rad), 0, cos(m_theta_rad), 0,
                       0               , 0               , 0, 1;
-        // std::cout << "Rot theta:\n" << rot_theta << std::endl;
 
         Eigen::Matrix4d rot_phi;
         rot_phi <<  1,              0,              0, 0,
                     0, cos(m_phi_rad), sin(m_phi_rad), 0,
                     0,-sin(m_phi_rad), cos(m_phi_rad), 0,
                     0,              0,              0, 1;
-        // rot_phi <<  cos(m_phi_rad), sin(m_phi_rad), 0, 0,
-        //              -sin(m_phi_rad), cos(m_phi_rad), 0, 0,
-        //               0               , 0               , 1, 0,
-        //               0               , 0               , 0, 1;
-        // std::cout << "Rot phi:\n" << rot_phi << std::endl;
 
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
@@ -142,30 +124,19 @@ namespace cinema
                     continue;
 
                 const float depth = m_near_far_step * (*col);
-                // std::cout << "\nImage depth: " << *col << std::endl;
-                // std::cout << "depth: " << depth << std::endl;
-                // std::cout << "m_far_plane: " << m_far_plane << std::endl;
-                // std::cout << "m_near_far_step: " << m_near_far_step << std::endl;
-                // std::cout << "*col / m_far_plane: " << *col / m_far_plane << std::endl;
+
                 // x y z vector.
+                // Scaling pixel values to camera space units.
+                // Translating depth for the value of the far plane to invert
+                // positions so that point cloud origin corresponds with object
+                // origin.
                 Eigen::Vector4d pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
                     depth - m_camera_far,
                     1);
-                // Eigen::Vector4d pos(
-                //     *col,
-                //     col - row->begin(),
-                //     row - m_depth_image.begin(),
-                //     1);
-
-                // std::cout << "depth: " << depth << std::endl;
-                // std::cout << "depth_shift: " << depth_shift << std::endl;
-                // std::cout << "position: " << pos << std::endl;
-
-                // pos = rot_matrix * pos;
+                
                 pos = rot_matrix * projection_matrix * pos;
-                // pos = rot_matrix * projection_matrix.inverse() * pos;
 
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
