@@ -101,8 +101,11 @@ namespace cinema
                     cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));                
                     std::cout << "Read theta" << *it_theta << " phi " << *it_phi << std::endl;                
                     if(++image_count >= n_images)
-                        break;
+                       break;
                 }
+                
+                if(image_count >= n_images)
+                    break;
             }
         }
 

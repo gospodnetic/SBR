@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 
 #include "../submodules/lodepng/lodepng.h"
 
@@ -135,7 +136,7 @@ namespace cinema
                 Eigen::Vector4d pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    depth - m_camera_far,
+                    depth,
                     1);
                 
                 pos = rot_matrix * projection_matrix * pos;
@@ -161,12 +162,21 @@ namespace cinema
         //
         // Read .npz file
         //
-        // Call python. The call path assumes we are in build folder at the time
-        // execution of the SBR program.
-        const std::string system_call = "python ../python_utils/npz2yaml.py -i " + filename;
-        std::system(system_call.c_str());
 
-        std::vector<std::vector<float>> depth_array = YAML::LoadFile(filename + ".yaml").as<std::vector<std::vector<float>>>();
+        struct stat buffer;
+        std::vector<std::vector<float>> depth_array;   
+
+        if(stat ((filename + ".yaml").c_str(), &buffer) != 0)
+        {
+            // If YAML file dose not exist, create it using python.
+            // Call python. The call path assumes we are in build folder at the time
+            // execution of the SBR program.
+            std::cout << "No YAML file..." << std::endl;
+            const std::string system_call = "python ../python_utils/npz2yaml.py -i " + filename;
+            std::system(system_call.c_str());
+        } 
+            
+        depth_array = YAML::LoadFile(filename + ".yaml").as<std::vector<std::vector<float>>>();
 
         return depth_array;
     }
