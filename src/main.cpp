@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-31 08:56:35
+* @Last Modified time: 2017-10-31 10:45:43
 */
 
 #include <iostream>
@@ -17,8 +17,10 @@
 int main(int argc, char* argv[])
 {   
     // Static paths to the image db structure in folders.
-    const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C_fake_theta.cdb/image";
-    const std::string db_label = "colorSphere1";
+    // const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C_fake_theta.cdb/image";
+    // const std::string db_label = "colorSphere1";
+    const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/Cone.cdb/image";
+    const std::string db_label = "colorCone1";
 
     int number_of_images = -1;
     if(argc > 1)

@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-31 09:09:18
+* @Last Modified time: 2017-10-31 11:36:13
 */
 
 #include "cinema_db.h"
@@ -16,10 +16,10 @@ namespace cinema
     CinemaDB::CinemaDB(
         const std::string   db_path,
         const std::string   db_label,
-        const int           n_phi_angles) // Number of phi angles.
+        const int           n_images) // Number of images to be read.
     {
         // Load depth images and read info.json values.
-        load_cinema_db(db_path, db_label, n_phi_angles);
+        load_cinema_db(db_path, db_label, n_images);
 
         // Calculate perspective projection matrix.
         const double S = 1 / tan((m_camera_angle) * (M_PI / 180));
@@ -38,7 +38,7 @@ namespace cinema
     void CinemaDB::load_cinema_db(
         const std::string   db_path,
         const std::string   db_label,
-        const int           n_phi_angles)
+        const int           n_images)
     {
         // Load database info.json.
         const std::string filename_json = db_path + "/info.json";
@@ -67,7 +67,7 @@ namespace cinema
             theta_values.push_back(it->asInt());
 
         std::vector<CinemaImage> cinema_db;
-        if(n_phi_angles < 0)
+        if(n_images < 0)
         {
             std::cout << "Reading all the images..." << std::endl;
             // Read the depth values for all positions
@@ -88,7 +88,8 @@ namespace cinema
         else
         {
             // Read the depth values for n phi angles.
-            for(std::vector<int>::const_iterator it_phi = phi_values.begin(); (it_phi - phi_values.begin()) < n_phi_angles && (it_phi != phi_values.end()); it_phi++)
+            size_t image_count = 0;
+            for(std::vector<int>::const_iterator it_phi = phi_values.begin(); it_phi != phi_values.end(); it_phi++)
             {
                 const size_t idx_phi = it_phi - phi_values.begin();
                 std::string dir_phi = db_path + "/phi=" + std::to_string(idx_phi);
@@ -99,6 +100,8 @@ namespace cinema
                     std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
                     cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));                
                     std::cout << "Read theta" << *it_theta << " phi " << *it_phi << std::endl;                
+                    if(++image_count >= n_images)
+                        break;
                 }
             }
         }

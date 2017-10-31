@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-31 08:56:05
+* @Last Modified time: 2017-10-31 10:48:04
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -48,11 +48,13 @@ namespace cinema
 
         // Camera near far out of info.json.
         // TODO: Unnecessary duplication - move it somewhere more appropriate.
-        m_camera_near = 2.305517831184482;
-        m_camera_far = 4.6363642410628785;
+        // m_camera_near = 2.305517831184482;
+        // m_camera_far = 4.6363642410628785;
+        m_camera_near = 0.007670275366679059;
+        m_camera_far = 7.670275366679059;
         m_near_far_step = (m_camera_far - m_camera_near) / max_depth;
     }
-        
+
     /*! \brief Return point cloud created out of the cinema image.
     *   
     */
@@ -107,8 +109,8 @@ namespace cinema
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
         // Generate the point cloud out of the depth values.
-        const int width_half = 519 / 2;
-        const int height_half = 422 / 2;
+        const int width_half = 2200 / 2;
+        const int height_half = 1223 / 2;
         const float depth_shift = m_camera_near + m_near_far_step * m_far_plane;
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
