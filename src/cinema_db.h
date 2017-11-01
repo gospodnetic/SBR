@@ -22,6 +22,8 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
+#include "Eigen/Dense"
+
 namespace cinema
 {
     class CinemaDB
@@ -45,18 +47,10 @@ namespace cinema
             const int           phi_json_idx = -1,
             const int           theta_json_idx = -1);
 
-        std::vector<CinemaImage>        m_depth_images; // .npz files from cinema database
-        double                          m_camera_near;  // Camera near plane
-        double                          m_camera_far;   // Camera far plane
-        double                          m_camera_angle; // Half of field of view
-        double                          m_camera_eye;   // Camera origin point
-        double                          m_camera_up;    // Camera up direction vector
-        double                          m_camera_at;    // Camera at direction vector
-        double                          m_image_height; // Image resolution height
-        double                          m_image_width;  // Image resolution width
-        double                          m_image_width;  // Image resolution width
-        Eigen::Matrix4d                 m_projection_matrix;
+        std::vector<CinemaImage>        m_depth_images; // .z files from cinema database
+        CameraMetadata                  m_camera_metadata; // Metadata read from info.json file
     };
+
     void test_lodepng(std::string filename);
 }
 #endif

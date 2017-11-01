@@ -14,8 +14,25 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
+#include "Eigen/Dense"
+
 namespace cinema
 {
+    struct CameraMetadata
+    {
+        double                          camera_near;  // Camera near plane
+        double                          camera_far;   // Camera far plane
+        double                          camera_angle; // Half of field of view
+        
+        Eigen::Vector3d                 camera_eye;   // Camera origin point
+        Eigen::Vector3d                 camera_up;    // Camera up direction vector
+        Eigen::Vector3d                 camera_at;    // Camera at direction vector
+        
+        size_t                          image_height; // Image resolution height
+        size_t                          image_width;  // Image resolution width
+        Eigen::Matrix4d                 projection_matrix;
+    };
+
     class CinemaImage
     {
       public:
@@ -23,14 +40,16 @@ namespace cinema
         // TODO: make more sensible interface for a CinemaImage. Does it make
         // sense to read in and store every image?? Huge memory consumption!
         // It is probably the best to fill in the point cloud as the images are
-        // read and just add a phi/theta ref to each point.
+        // read and just add a phi/theta ref to each point cloud.
         CinemaImage(
-            const std::string   filename,
-            const int           phi,
-            const int           theta);
+            const std::string       filename,
+            const int               phi,
+            const int               theta,
+            const CameraMetadata&   camera_metadata);
+
         pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud() const;
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb(
-            Eigen::Matrix4d projection_matrix) const;
+        
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb() const;
 
       private:
         std::vector<std::vector<float>> read_depth_image(
@@ -41,8 +60,7 @@ namespace cinema
         double                          m_theta;
         double                          m_phi_rad;
         double                          m_theta_rad;
-        double                          m_camera_near;
-        double                          m_camera_far;
+        CameraMetadata                  m_camera_metadata;
         double                          m_near_far_step;
 
         double                          m_far_plane; // Should be 255 

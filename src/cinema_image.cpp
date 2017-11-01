@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-31 10:48:04
+* @Last Modified time: 2017-11-01 12:56:38
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -17,21 +17,24 @@
 
 #include "../submodules/lodepng/lodepng.h"
 
-#include "Eigen/Dense"
 #include "yaml-cpp/yaml.h"
 
 namespace cinema
 {
     CinemaImage::CinemaImage(
-        const std::string   filename,
-        const int           phi,
-        const int           theta)
+        const std::string       filename,
+        const int               phi,
+        const int               theta,
+        const CameraMetadata&   camera_metadata)
     : m_phi(phi)
     , m_theta(theta)
+    , m_camera_metadata(camera_metadata)
     {
         // Takes about a second to read the depth image.
-        // TODO: pass a pointer Instead of using swap file.
+        // TODO: pass a pointer or o it directly in cpp, instead of using a 
+        //       swap file. It imposes a big performance hit!
         m_depth_image = read_depth_image(filename);
+
         m_phi_rad = m_phi * M_PI / 180;
         m_theta_rad = m_theta * M_PI / 180;
 
@@ -44,16 +47,8 @@ namespace cinema
         const float max_depth = *std::max_element(std::begin(column_maxs), std::end(column_maxs));
         m_far_plane = max_depth;
 
-        // TODO: figure out if the depth values should be mapped into camera
-        // space or not.
-
-        // Camera near far out of info.json.
-        // TODO: Unnecessary duplication - move it somewhere more appropriate.
-        // m_camera_near = 2.305517831184482;
-        // m_camera_far = 4.6363642410628785;
-        m_camera_near = 0.007670275366679059;
-        m_camera_far = 7.670275366679059;
-        m_near_far_step = (m_camera_far - m_camera_near) / max_depth;
+        // Camera unit declared based on the near_far distance.
+        m_near_far_step = (m_camera_metadata.camera_far - m_camera_metadata.camera_near) / max_depth;
     }
 
     /*! \brief Return point cloud created out of the cinema image.
@@ -86,8 +81,7 @@ namespace cinema
     *   TODO: Add simulation values - currenly it returns only depth with
     *   arbitrary color.
     */
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr CinemaImage::point_cloud_rgb(
-        Eigen::Matrix4d projection_matrix) const
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr CinemaImage::point_cloud_rgb() const
     {
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud(
             new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -110,25 +104,25 @@ namespace cinema
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
         std::cout << "m_far_plane: " << m_far_plane << std::endl;
+        
         // Generate the point cloud out of the depth values.
-        const int width_half = 2200 / 2;
-        const int height_half = 1223 / 2;
-        const float depth_shift = m_camera_near + m_near_far_step * m_far_plane;
+        const int width_half = m_camera_metadata.image_width / 2;
+        const int height_half = m_camera_metadata.image_height / 2;
+        const float depth_shift = m_camera_metadata.camera_near + m_near_far_step * m_far_plane;
         size_t idx = 0;
-        for(std::vector<std::vector<float>>::const_iterator row=m_depth_image.begin(); row!=m_depth_image.end(); row++)
+        for(std::vector<std::vector<float>>::const_iterator row = m_depth_image.begin(); row != m_depth_image.end(); row++)
         {
-            for(std::vector<float>::const_iterator col=row->begin(); col!=row->end(); col++)
+            for(std::vector<float>::const_iterator col = row->begin(); col != row->end(); col++)
             {
                 // Do not use points which represent the far plane.
                 // TODO: This is float to double comparison - FIX POTENTIAL ERROR!
                 // TODO: What Can I resize the point cloud initially to fit the 
                 //       number of points which are actually used? Is there a
                 //       way to resize it again afterwards?
-                if(*col == m_far_plane)
-                    continue;
+                // if(*col == m_far_plane)
+                //     continue;
 
-                const float depth = m_near_far_step * (*col);
-                std::cout << "depth: " << depth << std::endl;
+                const float depth = (*col) * m_near_far_step;
 
                 // x y z vector.
                 // Scaling pixel values to camera space units.
@@ -141,7 +135,7 @@ namespace cinema
                     depth,
                     1);
                 
-                pos = rot_matrix * projection_matrix * pos;
+                pos = rot_matrix * m_camera_metadata.projection_matrix * pos;
 
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
@@ -156,13 +150,13 @@ namespace cinema
         return point_cloud;
     }
 
-    /*! \brief Read the .npz file containing depth information.
+    /*! \brief Read the .Z file containing depth information.
     */
     std::vector<std::vector<float>> CinemaImage::read_depth_image(
         const std::string                   filename) const
     {
         //
-        // Read .npz file
+        // Read .Z
         //
 
         struct stat buffer;
@@ -174,7 +168,11 @@ namespace cinema
             // Call python. The call path assumes we are in build folder at the time
             // execution of the SBR program.
             std::cout << "No YAML file..." << std::endl;
-            const std::string system_call = "python ../python_utils/npz2yaml.py -i " + filename;
+            const std::string system_call = 
+                "python ../python_utils/z2yaml.py -i " + filename + 
+                " -w " + std::to_string(m_camera_metadata.image_width) +
+                " -h " + std::to_string(m_camera_metadata.image_height);
+            std::cout << system_call << std::endl;
             std::system(system_call.c_str());
         } 
             

@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-10-31 11:36:13
+* @Last Modified time: 2017-11-01 12:57:20
 */
 
 #include "cinema_db.h"
@@ -29,13 +29,13 @@ namespace cinema
             theta_json_idx);
 
         // Calculate perspective projection matrix.
-        const double S = 1 / tan((m_camera_angle) * (M_PI / 180));
+        const double S = 1 / tan((m_camera_metadata.camera_angle) * (M_PI / 180));
         
         // Projection matrix from http://www.terathon.com/gdc07_lengyel.pdf
-        // but with aspect ratio 1 (m_projection_matrix[1][1] = S)
-        const double b = -(m_camera_far + m_camera_near) / (m_camera_far - m_camera_near);
-        const double c = -2 * m_camera_far * m_camera_near / (m_camera_far - m_camera_near);
-        m_projection_matrix <<
+        // but with aspect ratio 1 (projection_matrix[1][1] = S)
+        const double b = -(m_camera_metadata.camera_far + m_camera_metadata.camera_near) / (m_camera_metadata.camera_far - m_camera_metadata.camera_near);
+        const double c = -2 * m_camera_metadata.camera_far * m_camera_metadata.camera_near / (m_camera_metadata.camera_far - m_camera_metadata.camera_near);
+        m_camera_metadata.projection_matrix <<
             S,  0,  0,  0,
             0,  S,  0,  0,
             0,  0,  b,  c,
@@ -56,12 +56,31 @@ namespace cinema
         info_file >> info_json;
 
         // Rad camera values.
-        // NOTE: [0] index before indexing is a hack due to bad .json generator.
-        //       Camera near far values are generated as array within an array
-        //       for some reason.
-        m_camera_near = info_json["metadata"]["camera_nearfar"][0][0].asDouble();
-        m_camera_far = info_json["metadata"]["camera_nearfar"][0][1].asDouble();
-        m_camera_angle = info_json["metadata"]["camera_angle"][0].asDouble();
+        // NOTE: [0] index before indexing camera values is a hack due to only
+        //       one timestep / camera config.
+        // TODO: Use iterator so that it can be saved into vectors for each 
+        //       timestep / camera config.
+        m_camera_metadata.camera_near = info_json["metadata"]["camera_nearfar"][0][0].asDouble();
+        m_camera_metadata.camera_far = info_json["metadata"]["camera_nearfar"][0][1].asDouble();
+        m_camera_metadata.camera_angle = info_json["metadata"]["camera_angle"][0].asDouble();
+
+        m_camera_metadata.camera_up << 
+            info_json["metadata"]["camera_up"][0][0].asDouble(),
+            info_json["metadata"]["camera_up"][0][1].asDouble(),
+            info_json["metadata"]["camera_up"][0][2].asDouble();
+            
+        m_camera_metadata.camera_eye << 
+            info_json["metadata"]["camera_eye"][0][0].asDouble(),
+            info_json["metadata"]["camera_eye"][0][1].asDouble(),
+            info_json["metadata"]["camera_eye"][0][2].asDouble();
+
+        m_camera_metadata.camera_at << 
+            info_json["metadata"]["camera_at"][0][0].asDouble(),
+            info_json["metadata"]["camera_at"][0][1].asDouble(),
+            info_json["metadata"]["camera_at"][0][2].asDouble();
+
+        m_camera_metadata.image_width = info_json["metadata"]["image_size"][0].asDouble();
+        m_camera_metadata.image_height = info_json["metadata"]["image_size"][1].asDouble();
 
         // Read phi values
         std::vector<int> phi_values;
@@ -75,6 +94,9 @@ namespace cinema
         for(Json::ValueIterator it = theta.begin(); it != theta.end(); it++)
             theta_values.push_back(it->asInt());
 
+        std::cout << n_images << std::endl;
+        std::cout << phi_json_idx << std::endl;
+        std::cout << theta_json_idx << std::endl;
         std::vector<CinemaImage> cinema_db;
         if(phi_json_idx >= 0 || theta_json_idx >=0)
         {
@@ -82,8 +104,14 @@ namespace cinema
             {
                 std::string dir_phi = db_path + "/phi=" + std::to_string(phi_json_idx);
                 std::string dir_theta = dir_phi + "/theta=" + std::to_string(theta_json_idx);
-                std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
-                cinema_db.push_back(CinemaImage(npz_filename, phi_values[phi_json_idx], theta_values[theta_json_idx]));
+                std::string z_filename = dir_theta + "/vis=0/" + db_label + "=0.Z";
+                
+                cinema_db.push_back(CinemaImage(
+                    z_filename,
+                    phi_values[phi_json_idx],
+                    theta_values[theta_json_idx],
+                    m_camera_metadata));
+
                 std::cout << "Read theta " << theta_json_idx << " phi " << phi_json_idx << std::endl;
             }
         }
@@ -99,15 +127,22 @@ namespace cinema
                 {
                     const size_t idx_theta = it_theta - theta_values.begin();
                     std::string dir_theta = dir_phi + "/theta=" + std::to_string(idx_theta);
-                    std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
-                    cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));
+                    std::string z_filename = dir_theta + "/vis=0/" + db_label + "=0.Z";
+                    
+                    cinema_db.push_back(CinemaImage(
+                        z_filename,
+                        *it_phi,
+                        *it_theta,
+                        m_camera_metadata));
+
                     std::cout << "Read theta" << *it_theta << " phi " << *it_phi << std::endl;                
                 }
             }
         }
         else
         {
-            // Read the depth values for n phi angles.
+            // Read the depth values for n images.
+            std::cout << "Reading " << n_images << " images..." << std::endl;
             size_t image_count = 0;
             for(std::vector<int>::const_iterator it_phi = phi_values.begin(); it_phi != phi_values.end(); it_phi++)
             {
@@ -117,8 +152,14 @@ namespace cinema
                 {
                     const size_t idx_theta = it_theta - theta_values.begin();
                     std::string dir_theta = dir_phi + "/theta=" + std::to_string(idx_theta);
-                    std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
-                    cinema_db.push_back(CinemaImage(npz_filename, *it_phi, *it_theta));                
+                    std::string z_filename = dir_theta + "/vis=0/" + db_label + "=0.Z";
+                    
+                    cinema_db.push_back(CinemaImage(
+                        z_filename,
+                        *it_phi,
+                        *it_theta,
+                        m_camera_metadata));                
+                    
                     std::cout << "Read theta" << *it_theta << " phi " << *it_phi << std::endl;                
                     if(++image_count >= n_images)
                        break;
@@ -142,7 +183,7 @@ namespace cinema
         {
             // Load all the depth images into the point cloud.
             for(std::vector<CinemaImage>::const_iterator it = m_depth_images.begin(); it != m_depth_images.end(); it++)
-                *image_depth_cloud += *(it->point_cloud_rgb(m_projection_matrix));
+                *image_depth_cloud += *(it->point_cloud_rgb());
         }
         else
         {
@@ -153,7 +194,7 @@ namespace cinema
                 ((it - m_depth_images.begin()) < number_of_images) && it != m_depth_images.end();
                 it++)
             {
-                *image_depth_cloud += *(it->point_cloud_rgb(m_projection_matrix));
+                *image_depth_cloud += *(it->point_cloud_rgb());
                 std::cout << count++ << std::endl;                
             }
         }
