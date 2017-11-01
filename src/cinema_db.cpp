@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 15:02:50
+* @Last Modified time: 2017-11-01 15:31:36
 */
 
 #include "cinema_db.h"
@@ -66,8 +66,8 @@ namespace cinema
             info_json["metadata"]["camera_at"][0][1].asDouble(),
             info_json["metadata"]["camera_at"][0][2].asDouble();
 
-        m_camera_metadata.image_width = info_json["metadata"]["image_size"][0].asDouble();
-        m_camera_metadata.image_height = info_json["metadata"]["image_size"][1].asDouble();
+        m_camera_metadata.image_height = info_json["metadata"]["image_size"][0].asDouble();
+        m_camera_metadata.image_width = info_json["metadata"]["image_size"][1].asDouble();
 
         // Restrict camera near far interval.
         // const double max_far = 10.0f;
@@ -87,7 +87,7 @@ namespace cinema
             0,  S,  0,  0,
             0,  0,  b,  c,
             0,  0, -1,  0;
-            
+
         // Read phi values
         std::vector<int> phi_values;
         Json::Value phi = info_json["parameter_list"]["phi"]["values"];

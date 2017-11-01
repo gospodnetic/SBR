@@ -2,7 +2,7 @@
 # @Author: Petra Gospodnetic
 # @Date:   2017-10-19 18:16:33
 # @Last Modified by:   Petra Gospodnetic
-# @Last Modified time: 2017-11-01 13:31:21
+# @Last Modified time: 2017-11-01 15:33:28
 
 import sys
 import getopt
@@ -47,7 +47,7 @@ def main(argv):
             height = arg
 
 
-    convert(fname, [int(width), int(height)])
+    convert(fname, [int(height), int(width)])
     
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 15:12:29
+* @Last Modified time: 2017-11-01 15:35:20
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -104,8 +104,8 @@ namespace cinema
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
         // Generate the point cloud out of the depth values.
-        const int width_half = m_camera_metadata.image_width / 2;
-        const int height_half = m_camera_metadata.image_height / 2;
+        const double width_half = m_camera_metadata.image_width / 2.0f;
+        const double height_half = m_camera_metadata.image_height / 2.0f;
         const float depth_shift = m_camera_metadata.camera_near + m_near_far_step * m_far_plane;
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row = m_depth_image.begin(); row != m_depth_image.end(); row++)
@@ -129,12 +129,12 @@ namespace cinema
                 // origin.
                 
                 Eigen::Vector4d pos(
-                    (col - row->begin() - width_half) * m_near_far_step,
-                    (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    depth - 1.5 * m_camera_metadata.camera_far,
+                    (col - row->begin() - width_half),
+                    (row - m_depth_image.begin() - height_half),
+                    (*col),
                     1);
-                
-                pos = rot_matrix * m_camera_metadata.projection_matrix * pos;
+                // std::cout << "Position\n" << pos << std::endl;
+                pos = rot_matrix * m_camera_metadata.projection_matrix.inverse() * pos;
                 
 
                 point_cloud->points[idx].x = pos[0];
