@@ -2,7 +2,7 @@
 # @Author: Petra Gospodnetic
 # @Date:   2017-10-19 18:16:33
 # @Last Modified by:   Petra Gospodnetic
-# @Last Modified time: 2017-11-01 15:33:28
+# @Last Modified time: 2017-11-01 15:42:51
 
 import sys
 import getopt
@@ -11,7 +11,6 @@ import yaml
 import zlib
 
 def convert(fname, shape):
-    print "Converting..."
     with open(fname, mode='rb') as file:
         compresseddata = file.read()
     flatarr = np.fromstring(
@@ -19,14 +18,10 @@ def convert(fname, shape):
         np.float32)
 
     numpy_array = flatarr.reshape(shape)
-    print numpy_array.shape
-    print "depth range: min:", numpy_array.min(), "max:", np.where(numpy_array==256, 0, numpy_array).max()
-
     with open(fname + '.yaml', 'w') as f:
         yaml.dump(numpy_array.tolist(), f)
 
 def main(argv):
-    print ("Here")
     fname = ""
     try:
         opts, args = getopt.getopt(argv,"pi:w:h:",["properties", "input=", "width=", "height="])
