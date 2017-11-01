@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 17:17:31
+* @Last Modified time: 2017-11-01 17:19:48
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -120,19 +120,25 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
-                const float depth = (*col) * m_near_far_step;
+                 double depth = (*col) * m_near_far_step;
 
                 // x y z vector.
                 // Scaling pixel values to camera space units.
                 // Translating depth for the value of the far plane to invert
                 // positions so that point cloud origin corresponds with object
                 // origin.
-                
+
+                // It seems that depth is not linear!!
+                // OpenGL non linear depth 
+                // https://stackoverflow.com/questions/8990735/how-to-use-opengl-orthographic-projection-with-the-depth-buffer
+                double winZ = m_camera_metadata.camera_far - m_camera_metadata.camera_near;
+                double ndcZ = (2 * winZ) - 1;
+                depth = ((ndcZ + (m_camera_metadata.camera_far + m_camera_metadata.camera_near)/(m_camera_metadata.camera_far - m_camera_metadata.camera_near)) * (m_camera_metadata.camera_far - m_camera_metadata.camera_near))/-2;
                 Eigen::Vector4d pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
                     // depth - 0.54* m_camera_metadata.camera_near,
-                    (depth - 112.521 * m_near_far_step) * 2,
+                    (depth),
                     1);
                 pos = rot_matrix * pos;
                 
