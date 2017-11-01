@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 16:36:17
+* @Last Modified time: 2017-11-01 16:41:11
 */
 
 #include <iostream>
@@ -21,9 +21,9 @@ int main(int argc, char* argv[])
     // const std::string db_path = "/media/petra/688EFC278EFBEB86/Codebase/Petra/sbr/data/Cone.cdb/image";
     // const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/Cone5.4.cdb/image";
     // const std::string db_path = "/home/petra/Downloads/ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit/bin/test_clipping_range.cdb/image";
-    // const std::string db_label = "colorCone1";
-    const std::string db_path = "/home/petra/Downloads/ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit/bin/orthoSphereOSPRay257.cdb/image";
-    const std::string db_label = "colorSphere1";
+    const std::string db_path = "/home/petra/Downloads/ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit/bin/orthoConeOSPRay257.cdb/image";
+    const std::string db_label = "colorCone1";
+    // const std::string db_label = "colorSphere1";
 
     int number_of_images = -1;
     if(argc > 1)

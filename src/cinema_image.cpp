@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 16:33:26
+* @Last Modified time: 2017-11-01 17:17:31
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -132,7 +132,7 @@ namespace cinema
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
                     // depth - 0.54* m_camera_metadata.camera_near,
-                    depth - (m_camera_metadata.camera_far - m_camera_metadata.camera_eye[2]),
+                    (depth - 112.521 * m_near_far_step) * 2,
                     1);
                 pos = rot_matrix * pos;
                 
