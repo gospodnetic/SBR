@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 15:04:55
+* @Last Modified time: 2017-11-01 15:12:29
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -89,16 +89,16 @@ namespace cinema
         
         // Rotation transformation with phi rotating around y-axis and theta
         // rotating around x-axis.
-        Eigen::Matrix4d rot_theta;
-        rot_theta <<  cos(m_theta_rad), 0, sin(m_theta_rad), 0,
+        Eigen::Matrix4d rot_phi;
+        rot_phi <<  cos(m_phi_rad), 0, sin(m_phi_rad), 0,
                       0               , 1               , 0, 0,
-                     -sin(m_theta_rad), 0, cos(m_theta_rad), 0,
+                     -sin(m_phi_rad), 0, cos(m_phi_rad), 0,
                       0               , 0               , 0, 1;
 
-        Eigen::Matrix4d rot_phi;
-        rot_phi <<  1,              0,              0, 0,
-                    0, cos(m_phi_rad), sin(m_phi_rad), 0,
-                    0,-sin(m_phi_rad), cos(m_phi_rad), 0,
+        Eigen::Matrix4d rot_theta;
+        rot_theta <<  1,              0,              0, 0,
+                    0, cos(m_theta_rad), sin(m_theta_rad), 0,
+                    0,-sin(m_theta_rad), cos(m_theta_rad), 0,
                     0,              0,              0, 1;
 
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
@@ -131,7 +131,7 @@ namespace cinema
                 Eigen::Vector4d pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    depth - m_camera_metadata.camera_far,
+                    depth - 1.5 * m_camera_metadata.camera_far,
                     1);
                 
                 pos = rot_matrix * m_camera_metadata.projection_matrix * pos;
