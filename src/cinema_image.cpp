@@ -109,6 +109,7 @@ namespace cinema
 
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
+        std::cout << "m_far_plane: " << m_far_plane << std::endl;
         // Generate the point cloud out of the depth values.
         const int width_half = 2200 / 2;
         const int height_half = 1223 / 2;
@@ -127,6 +128,7 @@ namespace cinema
                     continue;
 
                 const float depth = m_near_far_step * (*col);
+                std::cout << "depth: " << depth << std::endl;
 
                 // x y z vector.
                 // Scaling pixel values to camera space units.

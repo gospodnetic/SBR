@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
     // Static paths to the image db structure in folders.
     // const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/rainbowsphere_C_fake_theta.cdb/image";
     // const std::string db_label = "colorSphere1";
-    const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/Cone.cdb/image";
+    // const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/Cone.cdb/image";
+    const std::string db_path = "/media/petra/688EFC278EFBEB86/Codebase/Petra/sbr/data/Cone.cdb/image";
     const std::string db_label = "colorCone1";
 
     int number_of_images = -1;
@@ -29,7 +30,9 @@ int main(int argc, char* argv[])
     cinema::CinemaDB cinema_db(
         db_path,
         db_label,
-        number_of_images);
+        number_of_images,
+        0,
+        2);
 
 
     // Concatenate all the depth values into a single cloud.

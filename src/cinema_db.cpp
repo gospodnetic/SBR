@@ -16,10 +16,17 @@ namespace cinema
     CinemaDB::CinemaDB(
         const std::string   db_path,
         const std::string   db_label,
-        const int           n_images) // Number of images to be read.
+        const int           n_images,
+        const int           phi_json_idx,
+        const int           theta_json_idx) // Number of images to be read.
     {
         // Load depth images and read info.json values.
-        load_cinema_db(db_path, db_label, n_images);
+        load_cinema_db(
+            db_path,
+            db_label,
+            n_images,
+            phi_json_idx,
+            theta_json_idx);
 
         // Calculate perspective projection matrix.
         const double S = 1 / tan((m_camera_angle) * (M_PI / 180));
@@ -38,7 +45,9 @@ namespace cinema
     void CinemaDB::load_cinema_db(
         const std::string   db_path,
         const std::string   db_label,
-        const int           n_images)
+        const int           n_images,
+        const int           phi_json_idx,
+        const int           theta_json_idx)
     {
         // Load database info.json.
         const std::string filename_json = db_path + "/info.json";
@@ -67,7 +76,18 @@ namespace cinema
             theta_values.push_back(it->asInt());
 
         std::vector<CinemaImage> cinema_db;
-        if(n_images < 0)
+        if(phi_json_idx >= 0 || theta_json_idx >=0)
+        {
+            if(phi_json_idx >= 0 && theta_json_idx >=0)
+            {
+                std::string dir_phi = db_path + "/phi=" + std::to_string(phi_json_idx);
+                std::string dir_theta = dir_phi + "/theta=" + std::to_string(theta_json_idx);
+                std::string npz_filename = dir_theta + "/vis=0/" + db_label + "=0.npz";
+                cinema_db.push_back(CinemaImage(npz_filename, phi_values[phi_json_idx], theta_values[theta_json_idx]));
+                std::cout << "Read theta " << theta_json_idx << " phi " << phi_json_idx << std::endl;
+            }
+        }
+        else if(n_images < 0)
         {
             std::cout << "Reading all the images..." << std::endl;
             // Read the depth values for all positions
@@ -103,7 +123,7 @@ namespace cinema
                     if(++image_count >= n_images)
                        break;
                 }
-                
+
                 if(image_count >= n_images)
                     break;
             }

@@ -30,21 +30,31 @@ namespace cinema
         CinemaDB(
             const std::string   db_path,
             const std::string   db_label,
-            const int           n_phi_angles = -1);
+            const int           n_phi_angles = -1,
+            const int           phi_json_idx = -1,
+            const int           theta_json_idx = -1);
 
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb(
             const int number_of_images = -1) const;
 
       private:
         void load_cinema_db(
-        const std::string   db_path,
-        const std::string   db_label,
-        const int           number_of_images = -1);
+            const std::string   db_path,
+            const std::string   db_label,
+            const int           number_of_images = -1,
+            const int           phi_json_idx = -1,
+            const int           theta_json_idx = -1);
 
         std::vector<CinemaImage>        m_depth_images; // .npz files from cinema database
         double                          m_camera_near;  // Camera near plane
         double                          m_camera_far;   // Camera far plane
-        double                          m_camera_angle; // Field of view
+        double                          m_camera_angle; // Half of field of view
+        double                          m_camera_eye;   // Camera origin point
+        double                          m_camera_up;    // Camera up direction vector
+        double                          m_camera_at;    // Camera at direction vector
+        double                          m_image_height; // Image resolution height
+        double                          m_image_width;  // Image resolution width
+        double                          m_image_width;  // Image resolution width
         Eigen::Matrix4d                 m_projection_matrix;
     };
     void test_lodepng(std::string filename);
