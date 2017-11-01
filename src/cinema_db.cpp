@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 12:57:20
+* @Last Modified time: 2017-11-01 15:02:50
 */
 
 #include "cinema_db.h"
@@ -27,19 +27,6 @@ namespace cinema
             n_images,
             phi_json_idx,
             theta_json_idx);
-
-        // Calculate perspective projection matrix.
-        const double S = 1 / tan((m_camera_metadata.camera_angle) * (M_PI / 180));
-        
-        // Projection matrix from http://www.terathon.com/gdc07_lengyel.pdf
-        // but with aspect ratio 1 (projection_matrix[1][1] = S)
-        const double b = -(m_camera_metadata.camera_far + m_camera_metadata.camera_near) / (m_camera_metadata.camera_far - m_camera_metadata.camera_near);
-        const double c = -2 * m_camera_metadata.camera_far * m_camera_metadata.camera_near / (m_camera_metadata.camera_far - m_camera_metadata.camera_near);
-        m_camera_metadata.projection_matrix <<
-            S,  0,  0,  0,
-            0,  S,  0,  0,
-            0,  0,  b,  c,
-            0,  0, -1,  0;
     }
 
     void CinemaDB::load_cinema_db(
@@ -82,6 +69,25 @@ namespace cinema
         m_camera_metadata.image_width = info_json["metadata"]["image_size"][0].asDouble();
         m_camera_metadata.image_height = info_json["metadata"]["image_size"][1].asDouble();
 
+        // Restrict camera near far interval.
+        // const double max_far = 10.0f;
+        // const double clipping_plane_scaling_factor = max_far / m_camera_metadata.camera_far;
+        // m_camera_metadata.camera_far = m_camera_metadata.camera_far * clipping_plane_scaling_factor;
+        // m_camera_metadata.camera_near = m_camera_metadata.camera_near * clipping_plane_scaling_factor;
+
+        // Calculate perspective projection matrix.
+        const double S = 1 / tan((m_camera_metadata.camera_angle) * (M_PI / 180));
+        
+        // Projection matrix from http://www.terathon.com/gdc07_lengyel.pdf
+        // but with aspect ratio 1 (projection_matrix[1][1] = S)
+        const double b = -(m_camera_metadata.camera_far + m_camera_metadata.camera_near) / (m_camera_metadata.camera_far - m_camera_metadata.camera_near);
+        const double c = -2 * m_camera_metadata.camera_far * m_camera_metadata.camera_near / (m_camera_metadata.camera_far - m_camera_metadata.camera_near);
+        m_camera_metadata.projection_matrix <<
+            S,  0,  0,  0,
+            0,  S,  0,  0,
+            0,  0,  b,  c,
+            0,  0, -1,  0;
+            
         // Read phi values
         std::vector<int> phi_values;
         Json::Value phi = info_json["parameter_list"]["phi"]["values"];
@@ -94,9 +100,6 @@ namespace cinema
         for(Json::ValueIterator it = theta.begin(); it != theta.end(); it++)
             theta_values.push_back(it->asInt());
 
-        std::cout << n_images << std::endl;
-        std::cout << phi_json_idx << std::endl;
-        std::cout << theta_json_idx << std::endl;
         std::vector<CinemaImage> cinema_db;
         if(phi_json_idx >= 0 || theta_json_idx >=0)
         {
@@ -105,7 +108,7 @@ namespace cinema
                 std::string dir_phi = db_path + "/phi=" + std::to_string(phi_json_idx);
                 std::string dir_theta = dir_phi + "/theta=" + std::to_string(theta_json_idx);
                 std::string z_filename = dir_theta + "/vis=0/" + db_label + "=0.Z";
-                
+        
                 cinema_db.push_back(CinemaImage(
                     z_filename,
                     phi_values[phi_json_idx],

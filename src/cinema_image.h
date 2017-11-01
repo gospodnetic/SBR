@@ -45,7 +45,7 @@ namespace cinema
             const std::string       filename,
             const int               phi,
             const int               theta,
-            const CameraMetadata&   camera_metadata);
+            const CameraMetadata   camera_metadata);
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud() const;
         

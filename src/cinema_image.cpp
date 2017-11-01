@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 12:56:38
+* @Last Modified time: 2017-11-01 15:04:55
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -25,14 +25,14 @@ namespace cinema
         const std::string       filename,
         const int               phi,
         const int               theta,
-        const CameraMetadata&   camera_metadata)
+        const CameraMetadata    camera_metadata)
     : m_phi(phi)
     , m_theta(theta)
     , m_camera_metadata(camera_metadata)
     {
         // Takes about a second to read the depth image.
         // TODO: pass a pointer or o it directly in cpp, instead of using a 
-        //       swap file. It imposes a big performance hit!
+        //       swap file. It imposes a big performance hit!        
         m_depth_image = read_depth_image(filename);
 
         m_phi_rad = m_phi * M_PI / 180;
@@ -103,8 +103,6 @@ namespace cinema
 
         Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
 
-        std::cout << "m_far_plane: " << m_far_plane << std::endl;
-        
         // Generate the point cloud out of the depth values.
         const int width_half = m_camera_metadata.image_width / 2;
         const int height_half = m_camera_metadata.image_height / 2;
@@ -119,8 +117,8 @@ namespace cinema
                 // TODO: What Can I resize the point cloud initially to fit the 
                 //       number of points which are actually used? Is there a
                 //       way to resize it again afterwards?
-                // if(*col == m_far_plane)
-                //     continue;
+                if(*col == m_far_plane)
+                    continue;
 
                 const float depth = (*col) * m_near_far_step;
 
@@ -129,13 +127,15 @@ namespace cinema
                 // Translating depth for the value of the far plane to invert
                 // positions so that point cloud origin corresponds with object
                 // origin.
+                
                 Eigen::Vector4d pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    depth,
+                    depth - m_camera_metadata.camera_far,
                     1);
                 
                 pos = rot_matrix * m_camera_metadata.projection_matrix * pos;
+                
 
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
@@ -161,8 +161,8 @@ namespace cinema
 
         struct stat buffer;
         std::vector<std::vector<float>> depth_array;   
-
-        if(stat ((filename + ".yaml").c_str(), &buffer) != 0)
+        const bool use_cached_yaml = true;
+        if(!use_cached_yaml || stat ((filename + ".yaml").c_str(), &buffer) != 0)
         {
             // If YAML file dose not exist, create it using python.
             // Call python. The call path assumes we are in build folder at the time
