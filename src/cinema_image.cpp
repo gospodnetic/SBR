@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 15:35:20
+* @Last Modified time: 2017-11-01 15:38:28
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -129,12 +129,12 @@ namespace cinema
                 // origin.
                 
                 Eigen::Vector4d pos(
-                    (col - row->begin() - width_half),
-                    (row - m_depth_image.begin() - height_half),
-                    (*col),
+                    (col - row->begin() - width_half) * m_near_far_step,
+                    (row - m_depth_image.begin() - height_half) * m_near_far_step,
+                    depth - m_camera_metadata.camera_far,
                     1);
                 // std::cout << "Position\n" << pos << std::endl;
-                pos = rot_matrix * m_camera_metadata.projection_matrix.inverse() * pos;
+                pos = rot_matrix * m_camera_metadata.projection_matrix * pos;
                 
 
                 point_cloud->points[idx].x = pos[0];
