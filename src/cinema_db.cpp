@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-25 09:27:45
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 15:31:36
+* @Last Modified time: 2017-11-02 14:09:56
 */
 
 #include "cinema_db.h"
@@ -27,6 +27,35 @@ namespace cinema
             n_images,
             phi_json_idx,
             theta_json_idx);
+    }
+
+    /*! \brief Constructor used for testing the PCL visualization using manually
+    *       generated depth image.
+    */
+    CinemaDB::CinemaDB(
+        const std::string           depth_filename,
+        const size_t                height,
+        const size_t                width,
+        const std::vector<int>      phi,
+        const std::vector<int>      theta)
+    {
+        CameraMetadata fake_camera_metadata; 
+        fake_camera_metadata.image_height = height;
+        fake_camera_metadata.image_width = width;
+
+        typedef std::vector<int>::const_iterator veci_cit;
+        for(veci_cit phi_it = phi.begin(); phi_it != phi.end(); phi_it++)
+        {
+            for(veci_cit theta_it = phi.begin(); theta_it != phi.end(); theta_it++)
+            {
+                m_depth_images.push_back(CinemaImage(
+                    depth_filename,
+                    *phi_it,
+                    *theta_it,
+                    fake_camera_metadata,
+                    true));
+            }
+        }
     }
 
     void CinemaDB::load_cinema_db(

@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-02 12:21:06
+* @Last Modified time: 2017-11-02 14:46:05
 */
 
 #include <iostream>
@@ -29,13 +29,26 @@ int main(int argc, char* argv[])
     if(argc > 1)
         number_of_images = atoi(argv[1]);
 
-    cinema::CinemaDB cinema_db(
-        db_path,
-        db_label,
-        number_of_images,
-        0,
-        2);
+    // cinema::CinemaDB cinema_db(
+    //     db_path,
+    //     db_label,
+    //     number_of_images,
+    //     0,
+    //     2);
 
+    //
+    // TEST CASE.
+    //
+    const std::string       filename = "../data/PCLDepthTest.Z";
+    const std::vector<int>  phi = {-180, -90, 0, 90};
+    const std::vector<int>  theta = {-180, -90, 0, 90};
+
+    cinema::CinemaDB cinema_db(
+        filename,
+        257,
+        257,
+        phi,
+        theta);
 
     // Concatenate all the depth values into a single cloud.
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud =

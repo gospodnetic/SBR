@@ -46,10 +46,19 @@ namespace cinema
             const int               phi,
             const int               theta,
             const CameraMetadata   camera_metadata);
+        
+        CinemaImage(
+            const std::string       filename,
+            const int               phi,
+            const int               theta,
+            const CameraMetadata    camera_metadata,
+            const bool              test_image);
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud() const;
         
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb() const;
+
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb_test() const;
 
       private:
         std::vector<std::vector<float>> read_depth_image(
@@ -68,6 +77,7 @@ namespace cinema
                                             // Therefore, we have a var storing
                                             // the max depth value as the
                                             // representation of the far plane.
+        bool                            m_test_PCL_depth;
         // TODO: add simulation values.
     };
 

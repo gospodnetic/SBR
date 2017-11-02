@@ -36,6 +36,13 @@ namespace cinema
             const int           phi_json_idx = -1,
             const int           theta_json_idx = -1);
 
+        CinemaDB(
+            const std::string           depth_filename,
+            const size_t                   height,
+            const size_t                   width,
+            const std::vector<int>      phi,
+            const std::vector<int>      theta);
+
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_rgb(
             const int number_of_images = -1) const;
 
