@@ -2,7 +2,7 @@
 # @Author: Petra Gospodnetic
 # @Date:   2017-11-01 13:17:55
 # @Last Modified by:   Petra Gospodnetic
-# @Last Modified time: 2017-11-02 15:30:04
+# @Last Modified time: 2017-11-06 09:16:11
 import numpy as np
 import PIL.Image
 import zlib

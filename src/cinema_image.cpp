@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-02 17:10:12
+* @Last Modified time: 2017-11-06 09:17:33
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -287,7 +287,6 @@ namespace cinema
                     168, // Half depth
                     0);
                 pos = pos - translate;
-
                 pos = rotation_matrix * pos;
 
                 point_cloud->points[idx].x = pos[0];
