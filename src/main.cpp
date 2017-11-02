@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-09-28 12:56:17
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-02 14:46:05
+* @Last Modified time: 2017-11-02 17:07:04
 */
 
 #include <iostream>
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     //
     // TEST CASE.
     //
-    const std::string       filename = "../data/PCLDepthTest.Z";
+    const std::string       filename = "../data/PCLDepthTest_box_side.Z";
     const std::vector<int>  phi = {-180, -90, 0, 90};
     const std::vector<int>  theta = {-180, -90, 0, 90};
 

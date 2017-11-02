@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-02 14:37:41
+* @Last Modified time: 2017-11-02 17:10:12
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -238,8 +238,8 @@ namespace cinema
         point_cloud->points.resize(m_depth_image.size() * m_depth_image[0].size());
         
         // Generate the point cloud out of the depth values.
-        const double width_half = m_camera_metadata.image_width / 2.0f;
-        const double height_half = m_camera_metadata.image_height / 2.0f;
+        const double width_half = (m_camera_metadata.image_width - 1) / 2.0f;
+        const double height_half = (m_camera_metadata.image_height - 1) / 2.0f;
 
         // Rotation transformation with phi rotating around y-axis and theta
         // rotating around x-axis.
@@ -277,12 +277,8 @@ namespace cinema
                 glm::vec4 pos(
                     col - row->begin() - width_half,
                     row - m_depth_image.begin() - height_half,
-                    128 - *col,
+                    *col,
                     1);
-
-                std::cout << "x:" << col - row->begin() << std::endl;
-                std::cout << "y:" << row - m_depth_image.begin() << std::endl;
-                std::cout << "Position:" << glm::to_string(pos) << std::endl;
 
                 pos = rotation_matrix * pos;
 
@@ -307,7 +303,6 @@ namespace cinema
         //
         // Read .Z
         //
-
         struct stat buffer;
         std::vector<std::vector<float>> depth_array;   
         const bool use_cached_yaml = true;
