@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-01 17:19:48
+* @Last Modified time: 2017-11-02 11:34:26
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -16,6 +16,12 @@
 #include <sys/stat.h>
 
 #include "../submodules/lodepng/lodepng.h"
+
+#include <glm/vec3.hpp> // glm::vec3
+#include <glm/vec4.hpp> // glm::vec4, glm::ivec4
+#include <glm/mat4x4.hpp> // glm::mat4
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 #include "yaml-cpp/yaml.h"
 
@@ -87,25 +93,41 @@ namespace cinema
             new pcl::PointCloud<pcl::PointXYZRGB>);
         point_cloud->points.resize(m_depth_image.size() * m_depth_image[0].size());
         
-        // Rotation transformation with phi rotating around y-axis and theta
-        // rotating around x-axis.
-        Eigen::Matrix4d rot_phi;
-        rot_phi <<  cos(m_phi_rad), 0, sin(m_phi_rad), 0,
-                      0               , 1               , 0, 0,
-                     -sin(m_phi_rad), 0, cos(m_phi_rad), 0,
-                      0               , 0               , 0, 1;
-
-        Eigen::Matrix4d rot_theta;
-        rot_theta <<  1,              0,              0, 0,
-                    0, cos(m_theta_rad), sin(m_theta_rad), 0,
-                    0,-sin(m_theta_rad), cos(m_theta_rad), 0,
-                    0,              0,              0, 1;
-
-        Eigen::Matrix4d rot_matrix = rot_phi * rot_theta;
-
         // Generate the point cloud out of the depth values.
         const double width_half = m_camera_metadata.image_width / 2.0f;
         const double height_half = m_camera_metadata.image_height / 2.0f;
+
+        // Rotation transformation with phi rotating around y-axis and theta
+        // rotating around x-axis.
+        // Modelview matrix is in our case only rotation matrix.
+
+        glm::mat4 rot_phi(
+            cos(m_phi_rad), 0, sin(m_phi_rad), 0,
+                         0, 1,              0, 0,
+           -sin(m_phi_rad), 0, cos(m_phi_rad), 0,
+                         0, 0,              0, 1);
+
+        glm::mat4 rot_theta(
+              1,                0,                0, 0,
+              0, cos(m_theta_rad), sin(m_theta_rad), 0,
+              0,-sin(m_theta_rad), cos(m_theta_rad), 0,
+              0,                0,                0, 1);
+
+        glm::mat4 rotation_matrix = rot_phi * rot_theta;
+
+        glm::mat4 projection_matrix = glm::ortho(
+            -width_half * m_near_far_step,          // Left plane
+            (width_half - 1) * m_near_far_step,     // Right plane
+            -height_half * m_near_far_step,         // Bottom plane
+            (height_half - 1) * m_near_far_step,     // Top plane
+            m_camera_metadata.camera_near,          // Near plane
+            m_camera_metadata.camera_far);          // Far plane
+        glm::vec4 viewport(
+            0,
+            0,
+            m_camera_metadata.image_width * m_near_far_step,
+            m_camera_metadata.image_height * m_near_far_step);
+
         const float depth_shift = m_camera_metadata.camera_near + m_near_far_step * m_far_plane;
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row = m_depth_image.begin(); row != m_depth_image.end(); row++)
@@ -120,7 +142,7 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
-                 double depth = (*col) * m_near_far_step;
+                const double depth = (*col) * m_near_far_step;
 
                 // x y z vector.
                 // Scaling pixel values to camera space units.
@@ -131,17 +153,21 @@ namespace cinema
                 // It seems that depth is not linear!!
                 // OpenGL non linear depth 
                 // https://stackoverflow.com/questions/8990735/how-to-use-opengl-orthographic-projection-with-the-depth-buffer
-                double winZ = m_camera_metadata.camera_far - m_camera_metadata.camera_near;
-                double ndcZ = (2 * winZ) - 1;
-                depth = ((ndcZ + (m_camera_metadata.camera_far + m_camera_metadata.camera_near)/(m_camera_metadata.camera_far - m_camera_metadata.camera_near)) * (m_camera_metadata.camera_far - m_camera_metadata.camera_near))/-2;
-                Eigen::Vector4d pos(
+                // double winZ = m_camera_metadata.camera_far - m_camera_metadata.camera_near;
+
+                glm::vec4 pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    // depth - 0.54* m_camera_metadata.camera_near,
-                    (depth),
+                    (depth) - m_camera_metadata.camera_far,
                     1);
-                pos = rot_matrix * pos;
-                
+
+                // pos = glm::unProject(
+                //     pos,
+                //     glm::mat4(1.0f),
+                //     glm::mat4(1.0f),
+                //     viewport);.
+
+                pos = rotation_matrix * pos;
 
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
