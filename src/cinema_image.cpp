@@ -289,9 +289,9 @@ namespace cinema
                 point_cloud->points[idx].x = pos[0];
                 point_cloud->points[idx].y = pos[1];
                 point_cloud->points[idx].z = pos[2];
-                point_cloud->points[idx].r = *col;
-                point_cloud->points[idx].g = 50;
-                point_cloud->points[idx].b = 50;
+                // point_cloud->points[idx].r = 50;
+                // point_cloud->points[idx].g = 50;
+                // point_cloud->points[idx].b = 50;
                 idx++;
             }
         }
