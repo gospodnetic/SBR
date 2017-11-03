@@ -280,7 +280,7 @@ namespace cinema
                 glm::vec4 translate(
                     width_half,
                     height_half,
-                    128, // Half depth
+                    168, // Half depth
                     0);
                 pos = pos - translate;
 

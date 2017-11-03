@@ -21,8 +21,10 @@ int main(int argc, char* argv[])
     // const std::string db_path = "/media/petra/688EFC278EFBEB86/Codebase/Petra/sbr/data/Cone.cdb/image";
     // const std::string db_path = "/home/petra/Desktop/SampleBasedReconstruction/data/Cone5.4.cdb/image";
     // const std::string db_path = "/home/petra/Downloads/ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit/bin/test_clipping_range.cdb/image";
-    const std::string db_path = "/home/petra/Downloads/ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit/bin/orthoConeOSPRay257_scale.cdb/image";
-    const std::string db_label = "colorCone1";
+    // const std::string db_path = "/home/petra/Downloads/ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit/bin/orthoConeOSPRay257_scale.cdb/image";
+    const std::string db_path = "/home/petra/Desktop/orthoBox_257.cdb";
+    const std::string db_label = "colorBox1";
+    // const std::string db_label = "colorCone1";
     // const std::string db_label = "colorSphere1";
 
     int number_of_images = -1;
@@ -39,7 +41,8 @@ int main(int argc, char* argv[])
     //
     // TEST CASE.
     //
-    const std::string       filename = "../data/PCLDepthTest_box_side.Z";
+    const std::string       filename = "/home/petra/Desktop/orthoBox_257.cdb/image/phi=0/theta=0/vis=0/colorBox1=0.Z";
+    // const std::string       filename = "../data/PCLDepthTest_box_side.Z";
     const std::vector<int>  phi = {-180, -90, 0, 90};
     const std::vector<int>  theta = {-180, -90, 0, 90};
 
