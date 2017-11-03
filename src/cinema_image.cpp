@@ -257,7 +257,6 @@ namespace cinema
     
         glm::mat4 rotation_matrix = rot_phi * rot_theta;
 
-        const float depth_shift = m_camera_metadata.camera_near + m_near_far_step * m_far_plane;
         size_t idx = 0;
         for(std::vector<std::vector<float>>::const_iterator row = m_depth_image.begin(); row != m_depth_image.end(); row++)
         {
@@ -271,14 +270,19 @@ namespace cinema
                 if(*col == m_far_plane)
                     continue;
 
-                double depth = (*col) * m_near_far_step;
-
                 // x y z vector.
                 glm::vec4 pos(
-                    col - row->begin() - width_half,
-                    row - m_depth_image.begin() - height_half,
+                    col - row->begin(),
+                    row - m_depth_image.begin(),
                     *col,
                     1);
+
+                glm::vec4 translate(
+                    width_half,
+                    height_half,
+                    128, // Half depth
+                    0);
+                pos = pos - translate;
 
                 pos = rotation_matrix * pos;
 

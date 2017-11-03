@@ -18,10 +18,10 @@ with open(filename, mode='wb') as file:
 filename = "PCLDepthTest_box_side.Z"
 arr = numpy.full((257, 257), 256.0, dtype=numpy.float32)
 
-arr[:, 0] = 10
-arr[:, 256] = 10
-arr[0][:] = 10
-arr[256][:] = 10
+arr[:, 0] = 0
+arr[:, 256] = 0
+arr[0][:] = 0
+arr[256][:] = 0
 arr.itemset((128, 128), 128)
 print arr
 

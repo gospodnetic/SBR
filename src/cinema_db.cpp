@@ -46,7 +46,7 @@ namespace cinema
         typedef std::vector<int>::const_iterator veci_cit;
         for(veci_cit phi_it = phi.begin(); phi_it != phi.end(); phi_it++)
         {
-            for(veci_cit theta_it = phi.begin(); theta_it != phi.end(); theta_it++)
+            for(veci_cit theta_it = theta.begin(); theta_it != theta.end(); theta_it++)
             {
                 m_depth_images.push_back(CinemaImage(
                     depth_filename,
