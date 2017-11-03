@@ -31,25 +31,25 @@ int main(int argc, char* argv[])
     if(argc > 1)
         number_of_images = atoi(argv[1]);
 
-    // cinema::CinemaDB cinema_db(
-    //     db_path,
-    //     db_label,
-    //     number_of_images);
+    cinema::CinemaDB cinema_db(
+        db_path,
+        db_label,
+        number_of_images);
 
     //
     // TEST CASE.
     //
-    const std::string       filename = "/home/petra/Desktop/orthoBox_257.cdb/image/phi=0/theta=1/vis=0/colorBox1=3.Z";
-    // const std::string       filename = "../data/PCLDepthTest_box_side.Z";
-    const std::vector<int>  phi = {0};
-    const std::vector<int>  theta = {0};
+    // const std::string       filename = "/home/petra/Desktop/orthoBox_257.cdb/image/phi=0/theta=1/vis=0/colorBox1=3.Z";
+    // // const std::string       filename = "../data/PCLDepthTest_box_side.Z";
+    // const std::vector<int>  phi = {0};
+    // const std::vector<int>  theta = {0};
 
-    cinema::CinemaDB cinema_db(
-        filename,
-        257,
-        257,
-        phi,
-        theta);
+    // cinema::CinemaDB cinema_db(
+    //     filename,
+    //     257,
+    //     257,
+    //     phi,
+    //     theta);
 
     // Concatenate all the depth values into a single cloud.
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr image_depth_cloud =

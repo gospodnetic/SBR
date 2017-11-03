@@ -159,7 +159,7 @@ namespace cinema
                 {
                     const size_t idx_theta = it_theta - theta_values.begin();
                     std::string dir_theta = dir_phi + "/theta=" + std::to_string(idx_theta);
-                    std::string z_filename = dir_theta + "/vis=0/" + db_label + "=0.Z";
+                    std::string z_filename = dir_theta + "/vis=0/" + db_label + "=3.Z";
                     
                     cinema_db.push_back(CinemaImage(
                         z_filename,

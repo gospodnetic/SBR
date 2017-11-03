@@ -10,6 +10,7 @@
 #include "cinema_image.h"
 
 #include <cstdlib>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -55,7 +56,8 @@ namespace cinema
         m_far_plane = max_depth;
 
         // Camera unit declared based on the near_far distance.
-        m_near_far_step = (m_camera_metadata.camera_far - m_camera_metadata.camera_near) / max_depth;
+        // m_near_far_step = (m_camera_metadata.camera_far - m_camera_metadata.camera_near) / max_depth;
+        m_near_far_step = 1;
     }
 
     // 
@@ -184,7 +186,7 @@ namespace cinema
                 // TODO: What Can I resize the point cloud initially to fit the 
                 //       number of points which are actually used? Is there a
                 //       way to resize it again afterwards?
-                if(*col == m_far_plane)
+                if(*col == m_far_plane || std::isnan(*col))
                     continue;
 
                 double depth = (*col) * m_near_far_step;
@@ -207,8 +209,10 @@ namespace cinema
                 glm::vec4 pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    (depth) - m_camera_metadata.camera_far,
+                    (depth) - 250,
                     1);
+
+                std::cout << "POS: " << glm::to_string(pos) << std::endl;
 
                 // pos = glm::unProject(
                 //     pos,
