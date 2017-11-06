@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-06 09:17:33
+* @Last Modified time: 2017-11-06 09:41:12
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -189,7 +189,7 @@ namespace cinema
                 if(*col == m_far_plane || std::isnan(*col))
                     continue;
 
-                double depth = (*col) * m_near_far_step;
+                double depth = (*col) / m_far_plane * m_near_far_step;
 
                 // x y z vector.
                 // Scaling pixel values to camera space units.
@@ -197,15 +197,13 @@ namespace cinema
                 // positions so that point cloud origin corresponds with object
                 // origin.
 
-                // It seems that depth is not linear!!
+                // Depth is not linear!!
                 // OpenGL non linear depth 
-                // https://stackoverflow.com/questions/8990735/how-to-use-opengl-orthographic-projection-with-the-depth-buffer
+                // http://web.archive.org/web/20130416194336/http://olivers.posterous.com/linear-depth-in-glsl-for-real
 
-                // double zNear = m_camera_metadata.camera_near;
-                // double zFar = m_camera_metadata.camera_far;
-                // double z_n = 
-
-                // depth = depth * (m_camera_metadata.camera_far + m_camera_metadata.camera_near - z_n * (m_camera_metadata.camera_far - m_camera_metadata.camera_near));
+                double zNear = m_camera_metadata.camera_near;
+                double zFar = m_camera_metadata.camera_far;
+                depth = 2 * zNear * zFar / (zFar + zNear - (zFar - zNear) * depth);
                 glm::vec4 pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
