@@ -2,7 +2,7 @@
 * @Author: Petra Gospodnetic
 * @Date:   2017-10-17 16:19:55
 * @Last Modified by:   Petra Gospodnetic
-* @Last Modified time: 2017-11-06 09:41:12
+* @Last Modified time: 2017-11-08 15:24:29
 */
 // Composite raster of .im and .png files from Cinema database into a single
 // CinemaImage class.
@@ -189,7 +189,7 @@ namespace cinema
                 if(*col == m_far_plane || std::isnan(*col))
                     continue;
 
-                double depth = (*col) / m_far_plane * m_near_far_step;
+                double depth = (*col) / m_far_plane; // [0,1] interval
 
                 // x y z vector.
                 // Scaling pixel values to camera space units.
@@ -203,14 +203,14 @@ namespace cinema
 
                 double zNear = m_camera_metadata.camera_near;
                 double zFar = m_camera_metadata.camera_far;
-                depth = 2 * zNear * zFar / (zFar + zNear - (zFar - zNear) * depth);
+                // depth = 2 * zNear * zFar / (zFar + zNear - (zFar - zNear) * (depth - 1));
                 glm::vec4 pos(
                     (col - row->begin() - width_half) * m_near_far_step,
                     (row - m_depth_image.begin() - height_half) * m_near_far_step,
-                    (depth) - 250,
+                    depth * m_near_far_step / zFar,
                     1);
 
-                std::cout << "POS: " << glm::to_string(pos) << std::endl;
+                // std::cout << "POS: " << glm::to_string(pos) << std::endl;
 
                 // pos = glm::unProject(
                 //     pos,
